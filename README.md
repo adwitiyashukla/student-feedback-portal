@@ -4,8 +4,7 @@ A web app for handling student complaints at a college. Students raise a ticket,
 the right department, staff work through a queue and resolve it against a deadline, and admins get
 a dashboard showing where things are going wrong.
 
-I built this to get properly comfortable with Spring Boot and Docker rather than to solve a problem
-anyone asked me to solve.
+I built it as a personal project, mainly to get properly comfortable with Spring Boot and Docker.
 
 [![CI](https://github.com/adwitiyashukla/student-feedback-portal/actions/workflows/ci.yml/badge.svg)](https://github.com/adwitiyashukla/student-feedback-portal/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-21-orange)
@@ -30,9 +29,9 @@ notes the student never sees.
 **Admins** get a dashboard with ticket volume over time, a category breakdown, average resolution
 time and satisfaction score per department.
 
-There's also a small Python service that reads each new ticket and guesses its sentiment, category
-and priority. It's advisory only. If it's down the ticket still gets saved, just without the extra
-labels.
+A small Python service also reads every new ticket and predicts its sentiment, category and
+priority. These predictions are only suggestions, and staff can override them. If the service is
+unavailable, the ticket is still saved, just without the extra labels.
 
 | | |
 |---|---|
