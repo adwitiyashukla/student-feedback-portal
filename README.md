@@ -118,18 +118,6 @@ the schema uses full-text indexes and `TIMESTAMPDIFF` that H2 doesn't handle the
 
 CI runs both suites, builds both Docker images, and runs CodeQL and a dependency scan on every push.
 
-## What's not done yet
-
-Being honest about the state of it:
-
-- Line coverage is 46%. The gate is set at 45% so it catches a drop, but the service layer needs
-  more tests.
-- The CodeQL alerts in the Security tab haven't been reviewed yet.
-- File attachments work through the API but there's no upload button in the UI.
-- Timestamps render in UTC instead of the viewer's timezone.
-
-Full list in [`docs/OPEN-ITEMS.md`](docs/OPEN-ITEMS.md).
-
 ## Docs
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - design decisions and why
