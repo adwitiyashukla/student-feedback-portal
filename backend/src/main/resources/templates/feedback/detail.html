@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Feedback', ~{::section}, ~{})}">
+<body>
+<section>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+        <div>
+            <div class="text-body-secondary small font-monospace" th:text="${feedback.ticketNumber()}">FB</div>
+            <h1 class="h3 mb-2" th:text="${feedback.title()}">Title</h1>
+            <div class="d-flex flex-wrap gap-2">
+                <span th:replace="~{fragments/widgets :: statusBadge(${feedback.status()})}"></span>
+                <span th:replace="~{fragments/widgets :: priorityBadge(${feedback.priority()})}"></span>
+                <span th:replace="~{fragments/widgets :: sentimentBadge(${feedback.sentimentLabel()})}"></span>
+                <span class="badge text-bg-danger" th:if="${feedback.overdue()}">Overdue</span>
+                <span class="badge text-bg-light text-dark" th:text="${feedback.category().displayName}">Category</span>
+            </div>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/}">Back</a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ---------------- main column ---------------- -->
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Description</h2>
+                    <!-- th:text, never th:utext: the body is user input and
+                         must be escaped on output. -->
+                    <p class="mb-0" style="white-space: pre-wrap"
+                       th:text="${feedback.description()}">Description</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">
+                        Conversation
+                        <span class="badge text-bg-light text-dark ms-1"
+                              th:text="${feedback.comments().size()}">0</span>
+                    </h2>
+
+                    <div th:if="${feedback.comments().isEmpty()}" class="text-body-secondary small">
+                        No replies yet.
+                    </div>
+
+                    <div class="comment mb-3" th:each="c : ${feedback.comments()}"
+                         th:classappend="${c.internalNote()} ? 'comment-internal' : ''">
+                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                            <div>
+                                <span class="fw-semibold" th:text="${c.authorName()}">Author</span>
+                                <span class="badge text-bg-light text-dark ms-1 small"
+                                      th:text="${c.authorRole()}">ROLE</span>
+                                <span class="badge text-bg-warning ms-1 small"
+                                      th:if="${c.internalNote()}">Internal note</span>
+                            </div>
+                            <span class="text-body-secondary small"
+                                  th:text="${#temporals.format(c.createdAt(), 'dd MMM yyyy, HH:mm')}">when</span>
+                        </div>
+                        <div style="white-space: pre-wrap" th:text="${c.body()}">Body</div>
+                    </div>
+
+                    <hr th:if="${!feedback.status().isTerminal()}">
+
+                    <form th:if="${!feedback.status().isTerminal()}"
+                          th:action="@{/feedback/{id}/comments(id=${feedback.id()})}" method="post">
+                        <div class="mb-2">
+                            <label class="form-label small text-body-secondary" for="body">Add a reply</label>
+                            <textarea class="form-control" id="body" name="body" rows="3" required
+                                      minlength="2" maxlength="4000"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="form-check" th:if="${canManage}">
+                                <input class="form-check-input" type="checkbox" id="internalNote"
+                                       name="internalNote" value="true">
+                                <label class="form-check-label small" for="internalNote">
+                                    Internal note (hidden from the student)
+                                </label>
+                            </div>
+                            <button class="btn btn-primary btn-sm ms-auto" type="submit">Post reply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">History</h2>
+                    <ol class="timeline mb-0">
+                        <li th:each="h : ${feedback.history()}">
+                            <span class="fw-semibold"
+                                  th:text="${h.fromStatus() != null}
+                                           ? ${h.fromStatus()} + ' → ' + ${h.toStatus()}
+                                           : ${h.toStatus()}">transition</span>
+                            <span class="text-body-secondary small"
+                                  th:text="'by ' + ${h.changedByName()} + ' · ' +
+                                           ${#temporals.format(h.changedAt(), 'dd MMM yyyy, HH:mm')}">meta</span>
+                            <div class="small text-body-secondary" th:if="${h.note()}" th:text="${h.note()}">note</div>
+                        </li>
+                        <li th:if="${feedback.history().isEmpty()}" class="text-body-secondary small">
+                            Submitted, no transitions yet.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ---------------- side column ---------------- -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Details</h2>
+                    <dl class="row small mb-0">
+                        <dt class="col-5 text-body-secondary">Department</dt>
+                        <dd class="col-7" th:text="${feedback.departmentName()}">Dept</dd>
+
+                        <dt class="col-5 text-body-secondary">Raised by</dt>
+                        <dd class="col-7">
+                            <span th:text="${feedback.submittedByName()}">Student</span>
+                            <span class="d-block text-body-secondary"
+                                  th:if="${feedback.submittedByRoll()}"
+                                  th:text="${feedback.submittedByRoll()}">roll</span>
+                        </dd>
+
+                        <dt class="col-5 text-body-secondary">Assigned to</dt>
+                        <dd class="col-7" th:text="${feedback.assignedToName()}">Admin</dd>
+
+                        <dt class="col-5 text-body-secondary">Raised</dt>
+                        <dd class="col-7"
+                            th:text="${#temporals.format(feedback.createdAt(), 'dd MMM yyyy, HH:mm')}">date</dd>
+
+                        <dt class="col-5 text-body-secondary">Due</dt>
+                        <dd class="col-7"
+                            th:classappend="${feedback.overdue()} ? 'text-danger fw-semibold'"
+                            th:text="${feedback.dueAt() != null}
+                                     ? ${#temporals.format(feedback.dueAt(), 'dd MMM yyyy, HH:mm')} : '—'">—</dd>
+
+                        <dt class="col-5 text-body-secondary" th:if="${feedback.resolvedAt()}">Resolved</dt>
+                        <dd class="col-7" th:if="${feedback.resolvedAt()}"
+                            th:text="${#temporals.format(feedback.resolvedAt(), 'dd MMM yyyy, HH:mm')}">date</dd>
+
+                        <dt class="col-5 text-body-secondary" th:if="${feedback.satisfactionRating()}">Rating</dt>
+                        <dd class="col-7" th:if="${feedback.satisfactionRating()}"
+                            th:text="${feedback.satisfactionRating()} + ' / 5'">5</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Model output, shown to staff as a triage aid, never as a decision. -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${canManage and feedback.sentimentLabel() != null}">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Automated analysis</h2>
+                    <dl class="row small mb-0">
+                        <dt class="col-6 text-body-secondary">Sentiment</dt>
+                        <dd class="col-6"
+                            th:text="${feedback.sentimentLabel()} + ' (' +
+                                     ${#numbers.formatDecimal(feedback.sentimentScore(), 1, 2)} + ')'">x</dd>
+
+                        <dt class="col-6 text-body-secondary">Suggested category</dt>
+                        <dd class="col-6" th:text="${feedback.suggestedCategory()}">x</dd>
+
+                        <dt class="col-6 text-body-secondary">Confidence</dt>
+                        <dd class="col-6"
+                            th:text="${feedback.analysisConfidence() != null}
+                                     ? ${#numbers.formatPercent(feedback.analysisConfidence(), 1, 0)} : '—'">—</dd>
+                    </dl>
+                    <p class="text-body-secondary small mb-0 mt-2">
+                        Advisory only. A human decides the final category and priority.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4" th:if="${canManage}">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Actions</h2>
+
+                    <form th:action="@{/feedback/{id}/status(id=${feedback.id()})}" method="post" class="mb-3"
+                          th:if="${!feedback.allowedTransitions().isEmpty()}">
+                        <label class="form-label small text-body-secondary" for="status">Move to</label>
+                        <select class="form-select form-select-sm mb-2" id="status" name="status" required>
+                            <!-- Only transitions the state machine permits are offered. -->
+                            <option th:each="s : ${feedback.allowedTransitions()}" th:value="${s}"
+                                    th:text="${#strings.replace(s.name(), '_', ' ')}">S</option>
+                        </select>
+                        <textarea class="form-control form-control-sm mb-2" name="note" rows="2"
+                                  maxlength="500" placeholder="Note for the student (optional)"></textarea>
+                        <button class="btn btn-sm btn-primary w-100" type="submit">Update status</button>
+                    </form>
+
+                    <p class="text-body-secondary small" th:if="${feedback.allowedTransitions().isEmpty()}">
+                        This ticket is closed. No further transitions are possible.
+                    </p>
+
+                    <form th:action="@{/feedback/{id}/assignee(id=${feedback.id()})}" method="post"
+                          th:if="${departmentAdmins != null}">
+                        <label class="form-label small text-body-secondary" for="adminUserId">Reassign to</label>
+                        <select class="form-select form-select-sm mb-2" id="adminUserId" name="adminUserId" required>
+                            <option th:each="a : ${departmentAdmins}" th:value="${a.id()}"
+                                    th:text="${a.fullName()}"
+                                    th:selected="${feedback.assignedToId() != null and feedback.assignedToId() == a.id()}">A</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Reassign</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm" th:if="${canRate}">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Rate the resolution</h2>
+                    <form th:action="@{/feedback/{id}/rating(id=${feedback.id()})}" method="post">
+                        <div class="btn-group w-100 mb-2" role="group">
+                            <th:block th:each="n : ${#numbers.sequence(1, 5)}">
+                                <input type="radio" class="btn-check" name="rating" th:id="'rating' + ${n}"
+                                       th:value="${n}" required>
+                                <label class="btn btn-outline-primary btn-sm" th:for="'rating' + ${n}"
+                                       th:text="${n}">1</label>
+                            </th:block>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100" type="submit">Submit rating</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

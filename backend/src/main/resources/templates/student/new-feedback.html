@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Submit feedback', ~{::section}, ~{})}">
+<body>
+<section>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <h1 class="h3 mb-1">Submit feedback</h1>
+            <p class="text-body-secondary mb-4">
+                Pick the department that owns the issue and describe it. A ticket number,
+                priority and owner are assigned automatically.
+            </p>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="@{/student/feedback}" th:object="${form}" method="post" novalidate>
+
+                        <div class="alert alert-danger py-2 small" th:if="${#fields.hasAnyErrors()}">
+                            Please correct the highlighted fields.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="title">Title</label>
+                            <input class="form-control" id="title" th:field="*{title}"
+                                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+                                   placeholder="Short summary of the issue" maxlength="150">
+                            <div class="invalid-feedback" th:errors="*{title}"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="departmentId">Department</label>
+                                <select class="form-select" id="departmentId" th:field="*{departmentId}"
+                                        th:classappend="${#fields.hasErrors('departmentId')} ? 'is-invalid'">
+                                    <option value="">Choose a department…</option>
+                                    <option th:each="d : ${departments}" th:value="${d.id()}"
+                                            th:text="${d.name()}">Department</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{departmentId}"></div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="category">Category</label>
+                                <select class="form-select" id="category" th:field="*{category}"
+                                        th:classappend="${#fields.hasErrors('category')} ? 'is-invalid'">
+                                    <option value="">Choose a category…</option>
+                                    <option th:each="c : ${categories}" th:value="${c}"
+                                            th:text="${c.displayName}">Category</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{category}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="description">What happened?</label>
+                            <textarea class="form-control" id="description" rows="7"
+                                      th:field="*{description}"
+                                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                                      placeholder="Include dates, locations and anything that would help someone reproduce or verify the problem."></textarea>
+                            <div class="invalid-feedback" th:errors="*{description}"></div>
+                            <div class="form-text">Between 20 and 5000 characters.</div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="anonymous" th:field="*{anonymous}">
+                            <label class="form-check-label" for="anonymous">
+                                Submit anonymously
+                                <span class="text-body-secondary small d-block">
+                                    Staff will see the ticket but not your name or roll number.
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">Submit feedback</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/student/dashboard}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Profile used by docker-compose. Demo data is loaded so the stack is
+# immediately explorable after `docker compose up`.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/demo
+
+logging:
+  level:
+    com.adwitiya.feedbackportal: DEBUG

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('My feedback', ~{::section}, ~{})}">
+<body>
+<section>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">My feedback</h1>
+            <p class="text-body-secondary mb-0">
+                <span class="fw-semibold" th:text="${activeCount}">0</span> ticket(s) still being worked on.
+            </p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/student/feedback/new}">Submit new feedback</a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/student/dashboard}" class="row g-2 align-items-end">
+                <div class="col-sm-4">
+                    <label class="form-label small text-body-secondary" for="status">Status</label>
+                    <select class="form-select form-select-sm" id="status" name="status">
+                        <option value="">All</option>
+                        <option th:each="s : ${statuses}" th:value="${s}"
+                                th:text="${#strings.replace(s.name(), '_', ' ')}"
+                                th:selected="${filter.status() != null and filter.status() == s}">Status</option>
+                    </select>
+                </div>
+                <div class="col-sm-5">
+                    <label class="form-label small text-body-secondary" for="search">Search</label>
+                    <input class="form-control form-control-sm" id="search" name="search" type="search"
+                           th:value="${filter.search()}" placeholder="Ticket number, title or text">
+                </div>
+                <div class="col-sm-3 d-grid">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">Ticket</th>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Raised</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${page.content()}">
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/feedback/{id}(id=${item.id()})}"
+                           th:text="${item.ticketNumber()}">FB-2026-000001</a>
+                    </td>
+                    <td>
+                        <span th:text="${item.title()}">Title</span>
+                        <span class="badge text-bg-danger ms-1" th:if="${item.overdue()}">Overdue</span>
+                    </td>
+                    <td class="small text-body-secondary" th:text="${item.departmentName()}">Dept</td>
+                    <td th:insert="~{fragments/widgets :: statusBadge(${item.status()})}"></td>
+                    <td th:insert="~{fragments/widgets :: priorityBadge(${item.priority()})}"></td>
+                    <td class="small text-body-secondary"
+                        th:text="${#temporals.format(item.createdAt(), 'dd MMM yyyy')}">date</td>
+                </tr>
+                <tr th:if="${page.content().isEmpty()}">
+                    <td colspan="6" class="text-center text-body-secondary py-5">
+                        No feedback yet.
+                        <a th:href="@{/student/feedback/new}">Raise your first ticket.</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/widgets :: pager(${page}, '/student/dashboard')}"></div>
+
+</section>
+</body>
+</html>

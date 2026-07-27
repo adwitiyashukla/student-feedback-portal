@@ -1,0 +1,32 @@
+# Deployed environments. No demo data, no debug logging, secure cookies.
+spring:
+  flyway:
+    locations: classpath:db/migration
+    clean-disabled: true
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        same-site: strict
+  forward-headers-strategy: framework   # behind an ALB
+
+app:
+  storage:
+    type: S3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  level:
+    root: WARN
+    com.adwitiya.feedbackportal: INFO

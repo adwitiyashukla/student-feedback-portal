@@ -1,0 +1,27 @@
+# Integration tests. Testcontainers supplies the datasource URL at runtime.
+spring:
+  flyway:
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: none
+
+app:
+  jwt:
+    secret: dGVzdC1vbmx5LXNpZ25pbmcta2V5LXRoYXQtaXMtbG9uZy1lbm91Z2gtZm9yLWhzNTEyLWFsZ29yaXRobS0xMjM0NTY3OA==
+  analytics:
+    enabled: false
+  bootstrap:
+    enabled: false
+  rate-limit:
+    enabled: false
+
+logging:
+  level:
+    root: WARN

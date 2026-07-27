@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: page('Dashboard', ~{::section}, ~{::#page-scripts})}">
+<body>
+<section>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Feedback dashboard</h1>
+            <p class="text-body-secondary mb-0">
+                <span class="fw-semibold" th:text="${assignedCount}">0</span> ticket(s) assigned to you.
+            </p>
+        </div>
+
+        <form method="get" th:action="@{/admin/dashboard}" sec:authorize="hasRole('SUPER_ADMIN')">
+            <select class="form-select form-select-sm" name="departmentId"
+                    onchange="this.form.submit()">
+                <option value="">All departments</option>
+                <option th:each="d : ${departments}" th:value="${d.id()}" th:text="${d.name()}"
+                        th:selected="${selectedDepartmentId != null and selectedDepartmentId == d.id()}">Dept</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div th:replace="~{fragments/widgets :: statCard('Total feedback', ${stats.totalFeedback()}, 'blue')}"></div>
+        <div th:replace="~{fragments/widgets :: statCard('Open', ${stats.openFeedback()}, 'amber')}"></div>
+        <div th:replace="~{fragments/widgets :: statCard('Resolved', ${stats.resolvedFeedback()}, 'green')}"></div>
+        <div th:replace="~{fragments/widgets :: statCard('Overdue', ${stats.overdueFeedback()}, 'red')}"></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Average resolution time</h2>
+                    <div class="display-6 fw-bold"
+                         th:text="${stats.averageResolutionHours() != null}
+                                  ? ${#numbers.formatDecimal(stats.averageResolutionHours(), 1, 1)} + ' hrs'
+                                  : 'n/a'">n/a</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Average satisfaction</h2>
+                    <div class="display-6 fw-bold"
+                         th:text="${stats.averageSatisfaction() != null}
+                                  ? ${#numbers.formatDecimal(stats.averageSatisfaction(), 1, 2)} + ' / 5'
+                                  : 'n/a'">n/a</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">Submitted vs resolved</h2>
+                    <!-- The fixed-height .chart-box wrapper is load-bearing: see app.css.
+                         A bare <canvas height="..."> does not work, because Chart.js
+                         overwrites the attribute as soon as responsive sizing kicks in. -->
+                    <div class="chart-box">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-body-secondary mb-3">By category</h2>
+                    <div class="chart-box">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h2 class="h6 text-uppercase text-body-secondary mb-3">Department performance</h2>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Department</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Open</th>
+                        <th class="text-end">Resolved</th>
+                        <th class="text-end">Avg hours</th>
+                        <th class="text-end">Rating</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${stats.departmentPerformance()}">
+                        <td th:text="${row.departmentName()}">Dept</td>
+                        <td class="text-end" th:text="${row.total()}">0</td>
+                        <td class="text-end" th:text="${row.open()}">0</td>
+                        <td class="text-end" th:text="${row.resolved()}">0</td>
+                        <td class="text-end"
+                            th:text="${row.averageResolutionHours() != null}
+                                     ? ${#numbers.formatDecimal(row.averageResolutionHours(), 1, 1)} : '—'">—</td>
+                        <td class="text-end"
+                            th:text="${row.averageRating() != null}
+                                     ? ${#numbers.formatDecimal(row.averageRating(), 1, 2)} : '—'">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data is passed through data-* attributes rather than inlined script,
+         so the strict Content-Security-Policy needs no 'unsafe-inline'. -->
+    <div id="chart-data"
+         th:attr="data-trend=${#strings.listJoin(stats.monthlyTrend().![period + ':' + submitted + ':' + resolved], '|')},
+                  data-categories=${#strings.listJoin(stats.byCategory().keySet().![name()], '|')},
+                  data-category-counts=${#strings.listJoin(stats.byCategory().values(), '|')}"
+         hidden></div>
+
+</section>
+
+<th:block id="page-scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/dashboard.js}"></script>
+</th:block>
+</body>
+</html>

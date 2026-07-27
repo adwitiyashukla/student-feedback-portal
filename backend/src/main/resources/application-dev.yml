@@ -1,0 +1,23 @@
+# Local development: verbose logging, demo data, relaxed template caching.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/demo
+  thymeleaf:
+    cache: false
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    # Development-only key. Overridden by JWT_SECRET everywhere else.
+    secret: ${JWT_SECRET:ZGV2LW9ubHktc2VjcmV0LWRvLW5vdC11c2UtaW4tcHJvZHVjdGlvbi1wbGVhc2UtZ2VuZXJhdGUteW91ci1vd24ta2V5LTEyMzQ1Ng==}
+  bootstrap:
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:Admin#12345}
+
+logging:
+  level:
+    com.adwitiya.feedbackportal: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Access denied', ~{::section}, ~{})}">
+<body>
+<section class="text-center py-5">
+    <div class="display-1 fw-bold text-body-tertiary">403</div>
+    <h1 class="h4 mb-3">You do not have access to that page</h1>
+    <p class="text-body-secondary mb-4">
+        Your account role does not permit this action. If you believe that is a mistake,
+        contact the portal administrator.
+    </p>
+    <a class="btn btn-primary" th:href="@{/}">Back to my dashboard</a>
+</section>
+</body>
+</html>

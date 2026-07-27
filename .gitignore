@@ -1,0 +1,63 @@
+# ---- Java / Maven ----
+target/
+build/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+*.war
+*.ear
+hs_err_pid*
+
+# ---- IDE ----
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ---- Secrets & local config ----
+.env
+.env.local
+
+# The consistency job installs java-parser at the repo root with
+# `npm install --no-save`, which leaves node_modules/ behind.
+node_modules/
+package-lock.json
+*.pem
+*.key
+
+# ---- Terraform ----
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# ---- Runtime / data ----
+logs/
+*.log
+uploads/
+mysql-data/
+grafana-data/
+analytics-service/data/*.joblib
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

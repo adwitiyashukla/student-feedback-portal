@@ -1,0 +1,259 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: "21"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+
+  # ===================================================================
+  #  Backend: compile, unit tests, integration tests, coverage gate
+  # ===================================================================
+  backend:
+    name: Backend (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["21"]
+
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Compile
+        working-directory: backend
+        run: mvn -B clean compile
+
+      # `verify` runs surefire (unit tests) then failsafe (*IT integration
+      # tests). The integration tests start a real MySQL 8 through
+      # Testcontainers, so the Flyway migrations and every native query are
+      # exercised against the engine that runs in production - not H2
+      # pretending to be MySQL. JaCoCo's coverage gate runs in the same phase.
+      - name: Tests, integration tests and coverage gate
+        working-directory: backend
+        run: mvn -B verify
+
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          report_paths: backend/target/*-reports/TEST-*.xml
+          check_name: Backend test results
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+          retention-days: 14
+
+  # ===================================================================
+  #  Analytics service: lint, type-check, tests with coverage
+  # ===================================================================
+  analytics:
+    name: Analytics service
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: analytics-service/requirements-dev.txt
+
+      - name: Install dependencies
+        working-directory: analytics-service
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        working-directory: analytics-service
+        run: ruff check .
+
+      - name: Train model and enforce the accuracy gate
+        working-directory: analytics-service
+        run: python train.py
+
+      - name: Tests
+        working-directory: analytics-service
+        run: pytest --cov=app --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analytics-coverage
+          path: analytics-service/coverage.xml
+          retention-days: 14
+
+  # ===================================================================
+  #  Repository-wide consistency checks
+  #
+  #  Catches the class of mistake a compiler finds late or not at all:
+  #  Thymeleaf fragments that do not exist, controllers naming templates
+  #  that were never written, demo accounts referenced by tests but absent
+  #  from the seed data, credentials committed by accident.
+  # ===================================================================
+  consistency:
+    name: Repository consistency
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install checkers
+        run: |
+          pip install sqlglot pyyaml python-hcl2
+          npm install --no-save java-parser
+
+      - name: Verify
+        run: NODE_PATH=$PWD/node_modules python scripts/verify.py
+
+  # ===================================================================
+  #  Container images build cleanly
+  # ===================================================================
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: [backend, analytics, consistency]
+
+    strategy:
+      matrix:
+        include:
+          - service: backend
+            context: ./backend
+          - service: analytics
+            context: ./analytics-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }} image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: false
+          load: true
+          tags: sfp-${{ matrix.service }}:ci
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: sfp-${{ matrix.service }}:ci
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "0"          # report, do not block, on a student project
+          ignore-unfixed: true
+
+  # ===================================================================
+  #  Static analysis
+  # ===================================================================
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [java-kotlin, python]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Build Java sources for analysis
+        if: matrix.language == 'java-kotlin'
+        working-directory: backend
+        run: mvn -B clean compile -DskipTests
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+
+  # ===================================================================
+  #  Dependency and secret scanning
+  # ===================================================================
+  security:
+    name: Dependency & secret scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # v-prefixed tag on purpose. Aqua deleted the unprefixed tags (0.28.0 and
+      # friends) when they re-tagged everything in response to a supply chain
+      # attack; only 0.35.0 was kept for compatibility. An unprefixed pin now
+      # fails to resolve at all.
+      - name: Scan the filesystem
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

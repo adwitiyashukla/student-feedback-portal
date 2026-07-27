@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Students', ~{::section}, ~{})}">
+<body>
+<section>
+
+    <h1 class="h3 mb-4">Student directory</h1>
+
+    <form method="get" th:action="@{/admin/students}" class="row g-2 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <input class="form-control form-control-sm" name="search" type="search"
+                   th:value="${search}" placeholder="Name, roll number or email">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Roll number</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${page.content()}">
+                    <td class="fw-semibold" th:text="${s.rollNumber()}">ROLL</td>
+                    <td th:text="${s.fullName()}">Name</td>
+                    <td class="small text-body-secondary" th:text="${s.email()}">email</td>
+                    <td class="small" th:text="${s.departmentName()}">Dept</td>
+                    <td>
+                        <span class="badge text-bg-success" th:if="${s.enabled() and !s.locked()}">Active</span>
+                        <span class="badge text-bg-warning" th:if="${s.locked()}">Locked</span>
+                        <span class="badge text-bg-secondary" th:if="${!s.enabled()}">Disabled</span>
+                    </td>
+                </tr>
+                <tr th:if="${page.content().isEmpty()}">
+                    <td colspan="5" class="text-center text-body-secondary py-5">No students found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/widgets :: pager(${page}, '/admin/students')}"></div>
+
+</section>
+</body>
+</html>

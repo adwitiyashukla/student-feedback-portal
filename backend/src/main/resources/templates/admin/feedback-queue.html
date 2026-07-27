@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Feedback queue', ~{::section}, ~{})}">
+<body>
+<section>
+
+    <h1 class="h3 mb-4">Feedback queue</h1>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/admin/feedback}" class="row g-2 align-items-end">
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-body-secondary" for="status">Status</label>
+                    <select class="form-select form-select-sm" id="status" name="status">
+                        <option value="">All</option>
+                        <option th:each="s : ${statuses}" th:value="${s}"
+                                th:text="${#strings.replace(s.name(), '_', ' ')}"
+                                th:selected="${filter.status() != null and filter.status() == s}">S</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-body-secondary" for="category">Category</label>
+                    <select class="form-select form-select-sm" id="category" name="category">
+                        <option value="">All</option>
+                        <option th:each="c : ${categories}" th:value="${c}" th:text="${c.displayName}"
+                                th:selected="${filter.category() != null and filter.category() == c}">C</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-body-secondary" for="priority">Priority</label>
+                    <select class="form-select form-select-sm" id="priority" name="priority">
+                        <option value="">All</option>
+                        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p.name()}"
+                                th:selected="${filter.priority() != null and filter.priority() == p}">P</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <label class="form-label small text-body-secondary" for="search">Search</label>
+                    <input class="form-control form-control-sm" id="search" name="search" type="search"
+                           th:value="${filter.search()}" placeholder="Ticket, title or text">
+                </div>
+                <div class="col-6 col-lg-2 pt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="overdue" name="overdue" value="true"
+                               th:checked="${filter.overdue()}">
+                        <label class="form-check-label small" for="overdue">Overdue only</label>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-1 d-grid">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Ticket</th>
+                    <th>Subject</th>
+                    <th>From</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Sentiment</th>
+                    <th>Assignee</th>
+                    <th>Due</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${page.content()}" th:classappend="${item.overdue()} ? 'table-danger'">
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/feedback/{id}(id=${item.id()})}"
+                           th:text="${item.ticketNumber()}">FB</a>
+                    </td>
+                    <td th:text="${item.title()}">Title</td>
+                    <td class="small text-body-secondary" th:text="${item.submittedByName()}">Student</td>
+                    <!-- th:insert, NOT th:replace. The widgets fragments are <span>s;
+                         th:replace would discard these <td>s and leave bare spans as
+                         direct children of <tr>, which the HTML parser then hoists out
+                         above the table, shifting every remaining column left. -->
+                    <td th:insert="~{fragments/widgets :: statusBadge(${item.status()})}"></td>
+                    <td th:insert="~{fragments/widgets :: priorityBadge(${item.priority()})}"></td>
+                    <td th:insert="~{fragments/widgets :: sentimentBadge(${item.sentimentLabel()})}"></td>
+                    <td class="small text-body-secondary" th:text="${item.assignedToName()}">Admin</td>
+                    <td class="small"
+                        th:classappend="${item.overdue()} ? 'text-danger fw-semibold' : 'text-body-secondary'"
+                        th:text="${item.dueAt() != null}
+                                 ? ${#temporals.format(item.dueAt(), 'dd MMM')} : '—'">—</td>
+                </tr>
+                <tr th:if="${page.content().isEmpty()}">
+                    <td colspan="8" class="text-center text-body-secondary py-5">
+                        Nothing matches these filters.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/widgets :: pager(${page}, '/admin/feedback')}"></div>
+
+</section>
+</body>
+</html>

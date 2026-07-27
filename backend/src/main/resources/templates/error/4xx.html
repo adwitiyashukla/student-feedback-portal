@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: page('Something went wrong', ~{::section}, ~{})}">
+<body>
+<section class="text-center py-5">
+    <div class="display-1 fw-bold text-body-tertiary" th:text="${status} ?: 'Error'">500</div>
+    <h1 class="h4 mb-3" th:text="${error} ?: 'Unexpected error'">Unexpected error</h1>
+    <p class="text-body-secondary mb-4">
+        The problem has been logged. Please try again, and quote the time it happened
+        if you need to report it.
+    </p>
+    <a class="btn btn-primary" th:href="@{/}">Back to safety</a>
+</section>
+</body>
+</html>
