@@ -15,6 +15,9 @@ anyone asked me to solve.
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
+![Feedback queue](docs/screenshots/05-admin-feedback-queue.png)
+*The staff queue. Overdue tickets are highlighted, and sentiment comes from the analytics service.*
+
 ## What it does
 
 **Students** submit feedback against a department, anonymously if they want. They can track it by
@@ -30,6 +33,13 @@ time and satisfaction score per department.
 There's also a small Python service that reads each new ticket and guesses its sentiment, category
 and priority. It's advisory only. If it's down the ticket still gets saved, just without the extra
 labels.
+
+| | |
+|---|---|
+| ![Submit feedback](docs/screenshots/03-student-submit-feedback.png) | ![Ticket detail](docs/screenshots/04-ticket-detail-and-conversation.png) |
+| A student raising a ticket | The ticket, with the staff conversation and status history |
+
+More screens in [`docs/screenshots/`](docs/screenshots).
 
 ## Running it
 
