@@ -5,8 +5,8 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Abstraction over attachment storage.
  *
- * <p>Two implementations exist — local disk for development and S3 for
- * deployed environments — selected by {@code app.storage.type}. Callers only
+ * <p>Two implementations exist - local disk for development and S3 for
+ * deployed environments - selected by {@code app.storage.type}. Callers only
  * ever see an opaque storage key.</p>
  */
 public interface FileStorageService {

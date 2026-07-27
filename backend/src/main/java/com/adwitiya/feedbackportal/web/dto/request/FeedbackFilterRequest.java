@@ -43,7 +43,7 @@ public record FeedbackFilterRequest(
      *
      * <p>This field was declared {@code boolean}. An unticked checkbox submits
      * nothing at all, so the parameter arrived absent, and Spring cannot bind
-     * null to a primitive — every visit to the queue without an explicit
+     * null to a primitive - every visit to the queue without an explicit
      * {@code ?overdue=} failed with a 400 before the controller ever ran,
      * which contradicted this type's promise that every field is optional.
      * {@code Boolean} accepts the absent case; normalising here keeps

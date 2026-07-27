@@ -88,7 +88,7 @@
                     <td class="small"
                         th:classappend="${item.overdue()} ? 'text-danger fw-semibold' : 'text-body-secondary'"
                         th:text="${item.dueAt() != null}
-                                 ? ${#temporals.format(item.dueAt(), 'dd MMM')} : '—'">—</td>
+                                 ? ${#temporals.format(item.dueAt(), 'dd MMM')} : '-'">-</td>
                 </tr>
                 <tr th:if="${page.content().isEmpty()}">
                     <td colspan="8" class="text-center text-body-secondary py-5">

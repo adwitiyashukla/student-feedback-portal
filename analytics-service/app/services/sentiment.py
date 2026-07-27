@@ -4,7 +4,7 @@ Why a lexicon rather than a fine-tuned transformer: the deployment target is a
 512 MB Fargate task that must cold-start in seconds, and the input domain is
 narrow and predictable. A curated lexicon with negation and intensifier
 handling gets most of the accuracy of a large model on this corpus at roughly
-none of the cost, and — unlike a black-box model — every score it produces can
+none of the cost, and - unlike a black-box model - every score it produces can
 be explained by pointing at the terms that produced it.
 
 The scorer handles three things a naive bag-of-words misses:

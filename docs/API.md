@@ -32,18 +32,18 @@ curl -s -X POST http://localhost:8080/api/v1/auth/login \
 
 Access tokens last 15 minutes. Refresh tokens last 7 days, are **single use**, and are stored
 server-side only as a SHA-256 hash. Presenting an already-used refresh token revokes every session
-for that user — that pattern indicates theft, not a retry.
+for that user - that pattern indicates theft, not a retry.
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| `POST` | `/auth/login` | — | Exchange credentials for a token pair |
-| `POST` | `/auth/refresh` | — | Rotate a refresh token |
-| `POST` | `/auth/logout` | — | Revoke one refresh token |
+| `POST` | `/auth/login` | - | Exchange credentials for a token pair |
+| `POST` | `/auth/refresh` | - | Rotate a refresh token |
+| `POST` | `/auth/logout` | - | Revoke one refresh token |
 | `POST` | `/auth/logout-all` | any | Revoke every session for the caller |
 | `GET` | `/auth/me` | any | The caller's own profile |
 | `POST` | `/auth/change-password` | any | Change own password; revokes all sessions |
 
-**Failure modes.** `401` for wrong credentials *and* for an unknown account — the responses are
+**Failure modes.** `401` for wrong credentials *and* for an unknown account - the responses are
 byte-identical, and the encoder runs even when no account exists so timing does not distinguish
 them either. `423` after five consecutive failures (15-minute lockout). `429` past the rate limit.
 
@@ -92,7 +92,7 @@ GET /api/v1/feedback?status=OPEN&category=HOSTEL&overdue=true&page=0&size=20&sor
 
 **Visibility is not a parameter.** Students receive their own submissions, department staff receive
 their department's, super-administrators receive everything. Filters can only narrow that scope,
-never widen it — a department admin passing another department's `departmentId` still gets their
+never widen it - a department admin passing another department's `departmentId` still gets their
 own rows.
 
 ```json
@@ -112,7 +112,7 @@ GET /api/v1/feedback/{id}
 ```
 
 Returns the full record: description, threaded comments, status history, attachments, the
-analytics enrichment, and `allowedTransitions` — the set of states the server will actually accept
+analytics enrichment, and `allowedTransitions` - the set of states the server will actually accept
 next, so a client renders only legal actions.
 
 Internal staff notes are filtered out at the query level for students, not hidden in the template.
@@ -128,7 +128,7 @@ confirm the id exists.
 | `PATCH` | `/feedback/{id}/status` | staff | `422` if the state machine forbids the transition |
 | `PATCH` | `/feedback/{id}/assignee` | staff | Assignee must be in the same department |
 | `POST` | `/feedback/{id}/comments` | any | `internalNote: true` honoured for staff only |
-| `POST` | `/feedback/{id}/rating` | submitter | 1–5, only once resolved |
+| `POST` | `/feedback/{id}/rating` | submitter | 1-5, only once resolved |
 | `POST` | `/feedback/{id}/attachments` | any | multipart, images and PDF, 5 MB cap |
 | `GET` | `/feedback/{id}/attachments/{aid}` | any | `Content-Disposition: attachment`, `nosniff` |
 
@@ -140,7 +140,7 @@ curl -s -X PATCH http://localhost:8080/api/v1/feedback/42/status \
   -d '{"status":"RESOLVED","note":"Replaced the switch; verified with the lab staff."}'
 ```
 
-An illegal transition — `OPEN → CLOSED`, say — returns:
+An illegal transition - `OPEN → CLOSED`, say - returns:
 
 ```json
 { "type": "https://feedback-portal/errors/business-rule",
@@ -165,14 +165,14 @@ An illegal transition — `OPEN → CLOSED`, say — returns:
 | `GET` | `/dashboard/student` | student |
 | `GET` | `/notifications`, `/notifications/unread-count` | any |
 | `POST` | `/notifications/mark-all-read` | any |
-| `GET` | `/health`, `/health/dependencies` | — |
+| `GET` | `/health`, `/health/dependencies` | - |
 
 There is no public registration endpoint. Accounts are created by staff, which is how a university
 portal actually works and removes a whole class of self-signup abuse.
 
 `/dashboard/admin` returns totals, open and overdue counts, average resolution hours, average
 satisfaction, breakdowns by status and category, sentiment per category, a 12-month trend and a
-per-department league table — every figure a SQL `GROUP BY`, cached in Redis for 60 seconds.
+per-department league table - every figure a SQL `GROUP BY`, cached in Redis for 60 seconds.
 
 ---
 
@@ -204,7 +204,7 @@ Every failure is RFC 7807 `application/problem+json`.
 | `409` | Uniqueness conflict, or a stale optimistic-lock version |
 | `422` | Valid request, violates a domain rule |
 | `423` | Account locked out |
-| `429` | Rate limit exceeded — see `Retry-After` |
+| `429` | Rate limit exceeded - see `Retry-After` |
 | `500` | Unexpected; includes a `correlationId` to quote, and nothing else |
 
 ---
@@ -219,7 +219,7 @@ Fixed window, per client IP, honouring `X-Forwarded-For` behind a load balancer.
 | everything else under `/api/**` | 120 requests/minute |
 
 Responses carry `X-RateLimit-Limit` and `X-RateLimit-Remaining`; a `429` carries `Retry-After`. The
-limiter fails open — if Redis is unreachable, requests proceed rather than the portal going down.
+limiter fails open - if Redis is unreachable, requests proceed rather than the portal going down.
 
 ---
 

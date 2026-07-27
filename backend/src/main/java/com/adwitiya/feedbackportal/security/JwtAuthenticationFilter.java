@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  * Authenticates {@code /api/**} requests from a bearer token.
  *
- * <p>A malformed or expired token is not an error here — the filter simply
+ * <p>A malformed or expired token is not an error here - the filter simply
  * leaves the context empty and lets the authorisation rules decide, so public
  * endpoints keep working for unauthenticated callers.</p>
  */

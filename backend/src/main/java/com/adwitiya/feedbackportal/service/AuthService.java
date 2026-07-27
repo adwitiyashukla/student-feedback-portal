@@ -121,7 +121,7 @@ public class AuthService {
         return issueTokens(user, toPrincipal(user), httpRequest);
     }
 
-    /** Revokes a single session. Idempotent — signing out twice is not an error. */
+    /** Revokes a single session. Idempotent - signing out twice is not an error. */
     @Transactional
     public void logout(String rawRefreshToken) {
         if (rawRefreshToken == null || rawRefreshToken.isBlank()) {

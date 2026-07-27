@@ -7,7 +7,7 @@ features degrade gracefully where word features miss entirely.
 
 The fitted pipeline is persisted with ``joblib``. On startup the service loads
 it if present and trains it in-process otherwise, so a fresh container is
-usable without a separate training step — the first boot simply takes a few
+usable without a separate training step - the first boot simply takes a few
 seconds longer.
 """
 

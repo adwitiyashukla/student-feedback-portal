@@ -26,7 +26,7 @@ import java.util.Optional;
  * Issues and verifies JSON Web Tokens.
  *
  * <p>Access tokens are short-lived and stateless. Refresh tokens are opaque
- * random strings — not JWTs — and only their SHA-256 hash reaches the
+ * random strings - not JWTs - and only their SHA-256 hash reaches the
  * database, so the refresh side of the flow stays revocable.</p>
  */
 @Slf4j

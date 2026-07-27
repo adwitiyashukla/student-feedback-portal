@@ -17,7 +17,7 @@ import java.time.Instant;
  * Writes the security audit trail.
  *
  * <p>Every write runs in {@link Propagation#REQUIRES_NEW} so a rolled-back
- * business transaction still leaves its audit record behind — a failed attempt
+ * business transaction still leaves its audit record behind - a failed attempt
  * is exactly the thing you want recorded.</p>
  */
 @Slf4j

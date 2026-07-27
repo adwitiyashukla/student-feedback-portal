@@ -1,7 +1,7 @@
 # AWS infrastructure
 
 Terraform for deploying the Student Feedback Portal to AWS. **None of this is required to run the
-project** — `docker compose up` from the repository root is the supported path. This exists because
+project** - `docker compose up` from the repository root is the supported path. This exists because
 "it runs on my laptop" and "it runs in a VPC with private subnets and rotated secrets" are different
 claims, and the second one should be reviewable.
 
@@ -49,7 +49,7 @@ Internet
 - **Encryption at rest** on RDS (`storage_encrypted`) and S3 (SSE-S3), with public access blocked
   and versioning on.
 - **Port 80 only redirects.** The HTTPS listener is commented out because it needs an ACM
-  certificate for a domain you own — uncomment it and supply `certificate_arn` once you have one.
+  certificate for a domain you own - uncomment it and supply `certificate_arn` once you have one.
 
 ## Using it
 

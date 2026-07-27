@@ -137,7 +137,7 @@
                         <dd class="col-7"
                             th:classappend="${feedback.overdue()} ? 'text-danger fw-semibold'"
                             th:text="${feedback.dueAt() != null}
-                                     ? ${#temporals.format(feedback.dueAt(), 'dd MMM yyyy, HH:mm')} : '—'">—</dd>
+                                     ? ${#temporals.format(feedback.dueAt(), 'dd MMM yyyy, HH:mm')} : '-'">-</dd>
 
                         <dt class="col-5 text-body-secondary" th:if="${feedback.resolvedAt()}">Resolved</dt>
                         <dd class="col-7" th:if="${feedback.resolvedAt()}"
@@ -167,7 +167,7 @@
                         <dt class="col-6 text-body-secondary">Confidence</dt>
                         <dd class="col-6"
                             th:text="${feedback.analysisConfidence() != null}
-                                     ? ${#numbers.formatPercent(feedback.analysisConfidence(), 1, 0)} : '—'">—</dd>
+                                     ? ${#numbers.formatPercent(feedback.analysisConfidence(), 1, 0)} : '-'">-</dd>
                     </dl>
                     <p class="text-body-secondary small mb-0 mt-2">
                         Advisory only. A human decides the final category and priority.

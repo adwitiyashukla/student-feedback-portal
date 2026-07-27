@@ -92,10 +92,10 @@ their own rows back.
 
 Three layers, deliberately overlapping:
 
-1. **URL rules** in `SecurityConfig` — coarse, role-based (`/api/v1/admin/**` → `SUPER_ADMIN`).
-2. **Method security** — `@PreAuthorize("@feedbackAccess.canManage(#id, principal)")` for
+1. **URL rules** in `SecurityConfig` - coarse, role-based (`/api/v1/admin/**` → `SUPER_ADMIN`).
+2. **Method security** - `@PreAuthorize("@feedbackAccess.canManage(#id, principal)")` for
    record-level ownership.
-3. **Query scoping** — the specification above, so a list can never return a row the caller should
+3. **Query scoping** - the specification above, so a list can never return a row the caller should
    not see, regardless of what got past layers 1 and 2.
 
 **404 rather than 403 for records you do not own.** A 403 confirms the id exists, which is itself a
@@ -113,8 +113,8 @@ and its table is a startup failure rather than a silent column drift.
 
 Migrations live in two locations:
 
-- `classpath:db/migration` — structural, applied in every environment
-- `classpath:db/demo` — the demo dataset, on the Flyway path **only** under `dev` and `docker`
+- `classpath:db/migration` - structural, applied in every environment
+- `classpath:db/demo` - the demo dataset, on the Flyway path **only** under `dev` and `docker`
 
 Production therefore cannot load demo data even by accident; the location is not on its path.
 
@@ -189,14 +189,14 @@ appends to the append-only `feedback_status_history` table. The rule lives on th
 holds regardless of which controller, scheduler or test invokes it.
 
 `FeedbackDetailResponse` carries `allowedTransitions`, so the UI renders only the buttons the server
-will accept — the API stays the single source of truth for what is legal.
+will accept - the API stays the single source of truth for what is legal.
 
 ---
 
 ## 6. Asynchrony and scheduling
 
-Java 21 virtual threads back the `@Async` executor. Both async paths — the analytics call and
-notification email — are I/O bound, which makes thread-per-task the right executor rather than a
+Java 21 virtual threads back the `@Async` executor. Both async paths - the analytics call and
+notification email - are I/O bound, which makes thread-per-task the right executor rather than a
 tuned pool.
 
 Analytics enrichment is registered as an **after-commit** callback:
@@ -284,7 +284,7 @@ keywords   → IDF-weighted terms from the fitted vectoriser
 **Why a lexicon and not a transformer.** The target is a small Fargate task that must cold-start in
 seconds; the input domain is narrow and predictable; and an administrator seeing "this complaint is
 NEGATIVE" is entitled to ask why. The lexicon answers that by naming the terms. It handles the
-cases that actually break bag-of-words scoring — negation windows, intensifiers, and clause breaks
+cases that actually break bag-of-words scoring - negation windows, intensifiers, and clause breaks
 so that *"not ideal, but the staff were excellent"* scores positive.
 
 **Why rules and not a model for priority.** There is no labelled priority data. Manufacturing some
@@ -292,7 +292,7 @@ would produce a classifier whose mistakes nobody could explain, in a system that
 grievances. Every `PriorityDecision` carries its reason string.
 
 **On the accuracy figure.** The training corpus is template-generated, so cross-validated accuracy
-on it is 1.000 and means nothing — the folds share vocabulary by construction. The reported metric
+on it is 1.000 and means nothing - the folds share vocabulary by construction. The reported metric
 is accuracy on 28 hand-written held-out tickets: **0.893**. `train.py` exits non-zero below 0.80,
 and CI runs it on every push.
 
@@ -336,10 +336,10 @@ That test is the IDOR guarantee, written down as an assertion.
 
 ## 11. Deployment topology
 
-**Local** — `docker compose up` brings up seven containers with healthchecks and a dependency graph
+**Local** - `docker compose up` brings up seven containers with healthchecks and a dependency graph
 that waits on them, so `up` either reaches a working system or fails visibly.
 
-**AWS** — Terraform in [`infra/terraform`](../infra/terraform):
+**AWS** - Terraform in [`infra/terraform`](../infra/terraform):
 
 ```
 Internet ──▶ ALB (public subnets, :443)
@@ -361,11 +361,11 @@ through the ECS task role via the default provider chain.
 
 **Server-rendered UI rather than a SPA.** One deployable, no CORS surface, no tokens in browser
 storage, and the authorisation model stays in one place. The REST API is complete and documented,
-so a React front end could be added later without reworking the server — it is simply not required
+so a React front end could be added later without reworking the server - it is simply not required
 for the product to work.
 
-**Hand-written mappers rather than MapStruct.** The anonymity rule — whether a submitter's name is
-disclosed — is a business decision. It belongs in reviewable code, not in a generated method.
+**Hand-written mappers rather than MapStruct.** The anonymity rule - whether a submitter's name is
+disclosed - is a business decision. It belongs in reviewable code, not in a generated method.
 
 **Accounts are disabled, never deleted.** Feedback, comments and audit rows all reference users.
 A hard delete either cascades away real history or leaves dangling references, so deactivation is

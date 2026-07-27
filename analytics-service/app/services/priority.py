@@ -2,7 +2,7 @@
 
 Priority is not learned. There is no labelled priority data to learn from, and
 inventing one would produce a model whose mistakes nobody could explain. This
-is an explicit, auditable rule set instead — which is also what a university
+is an explicit, auditable rule set instead - which is also what a university
 would need to sign off on before letting software escalate a complaint.
 """
 

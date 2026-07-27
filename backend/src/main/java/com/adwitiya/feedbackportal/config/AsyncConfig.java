@@ -14,8 +14,8 @@ import java.util.concurrent.Executors;
 /**
  * Runs {@code @Async} work on Java 21 virtual threads.
  *
- * <p>The two async paths here — calling the Python analytics service and
- * sending notification mail — are both I/O bound and both must stay off the
+ * <p>The two async paths here - calling the Python analytics service and
+ * sending notification mail - are both I/O bound and both must stay off the
  * request thread. Virtual threads make a thread-per-task executor the correct
  * choice rather than a tuned pool.</p>
  */

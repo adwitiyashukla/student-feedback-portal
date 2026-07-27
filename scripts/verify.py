@@ -3,7 +3,7 @@
 
 Runs the static checks that do not need a JVM, a database or a network:
 syntax of every source file, and cross-references that a compiler would only
-catch much later — Thymeleaf fragments that do not exist, controllers naming
+catch much later - Thymeleaf fragments that do not exist, controllers naming
 templates that were never written, secrets committed by accident.
 
     python scripts/verify.py
@@ -136,7 +136,7 @@ def check_sql() -> None:
         try:
             statements = [s for s in sqlglot.parse(path.read_text(), read="mysql") if s]
             total += len(statements)
-            ok(f"{path.name} — {len(statements)} statements")
+            ok(f"{path.name} - {len(statements)} statements")
         except Exception as exc:  # noqa: BLE001 - report anything the parser rejects
             fail(f"{path.name}: {exc}")
     print(f"    {DIM}{total} statements total{RESET}")
@@ -182,7 +182,7 @@ def check_terraform() -> None:
                           if k in ("resource", "data", "variable", "output", "module"))
         except Exception as exc:  # noqa: BLE001
             fail(f"{path.name}: {str(exc)[:120]}")
-    ok(f"Terraform parses — {blocks} top-level blocks")
+    ok(f"Terraform parses - {blocks} top-level blocks")
 
 
 def check_templates() -> None:
@@ -228,7 +228,7 @@ def check_controller_views() -> None:
 
     if missing:
         for entry in missing:
-            fail(f"missing template — {entry}")
+            fail(f"missing template - {entry}")
     else:
         ok(f"every view name resolves to one of {len(available)} templates")
 
@@ -241,7 +241,7 @@ def check_security_claims() -> None:
     unescaped = [p.name for p in templates
                  if "th:utext=" in strip_comments(p.read_text(encoding="utf-8"), ".html")]
     if unescaped:
-        fail(f"th:utext found in {unescaped} — the README claims it appears nowhere")
+        fail(f"th:utext found in {unescaped} - the README claims it appears nowhere")
     else:
         ok("no th:utext anywhere (README's XSS claim holds)")
 
@@ -349,7 +349,7 @@ def check_json() -> None:
 
 
 def main() -> int:
-    print(f"\n  Student Feedback Portal — repository verification\n  {DIM}{ROOT}{RESET}")
+    print(f"\n  Student Feedback Portal - repository verification\n  {DIM}{ROOT}{RESET}")
 
     check_java_syntax()
     check_java_imports()

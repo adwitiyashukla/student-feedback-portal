@@ -22,7 +22,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * A file uploaded alongside a piece of feedback — typically a photograph of
+ * A file uploaded alongside a piece of feedback - typically a photograph of
  * the problem being reported.
  *
  * <p>Only metadata lives in MySQL. {@code storageKey} points at the bytes,

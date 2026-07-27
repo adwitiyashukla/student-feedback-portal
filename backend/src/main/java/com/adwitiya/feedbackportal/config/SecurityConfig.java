@@ -71,7 +71,7 @@ public class SecurityConfig {
     private final AppProperties appProperties;
 
     /**
-     * Chain 1 — the JSON API. Stateless, bearer-token authenticated, rate
+     * Chain 1 - the JSON API. Stateless, bearer-token authenticated, rate
      * limited, and it answers with problem+json rather than a redirect.
      */
     @Bean
@@ -99,7 +99,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Chain 2 — the Thymeleaf UI. Session cookie, CSRF tokens, form login.
+     * Chain 2 - the Thymeleaf UI. Session cookie, CSRF tokens, form login.
      */
     @Bean
     @Order(2)
@@ -170,7 +170,7 @@ public class SecurityConfig {
      * <p>New hashes are written with a {@code {bcrypt}} prefix, which is what
      * makes a future algorithm change a configuration edit rather than a
      * forced password reset for every account. Hashes stored without a prefix
-     * — the demo dataset, and anything imported from an older system — are
+     * - the demo dataset, and anything imported from an older system - are
      * still verified, via {@code setDefaultPasswordEncoderForMatches}.</p>
      */
     @Bean

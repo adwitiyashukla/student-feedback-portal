@@ -15,7 +15,7 @@ import java.util.Collection;
  *
  * <p>Every filter is a separate {@link Specification} combined with
  * {@code and(...)}, so the generated SQL contains only the filters the caller
- * actually supplied — and every value is a bound parameter, never string
+ * actually supplied - and every value is a bound parameter, never string
  * concatenation.</p>
  */
 public final class FeedbackSpecifications {

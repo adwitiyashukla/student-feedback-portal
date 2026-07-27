@@ -28,8 +28,8 @@ public class JwtProperties {
     /**
      * Lifetime of an access token. Short by design; refresh tokens do the rest.
      *
-     * <p>Bean Validation has no built-in constraint for {@link Duration} —
-     * {@code @Positive} only understands numeric types — so the durations are
+     * <p>Bean Validation has no built-in constraint for {@link Duration} -
+     * {@code @Positive} only understands numeric types - so the durations are
      * checked together in {@link #isDurationsPositive()}.</p>
      */
     private Duration accessTokenTtl = Duration.ofMinutes(15);

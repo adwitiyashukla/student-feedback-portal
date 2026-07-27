@@ -103,10 +103,10 @@
                         <td class="text-end" th:text="${row.resolved()}">0</td>
                         <td class="text-end"
                             th:text="${row.averageResolutionHours() != null}
-                                     ? ${#numbers.formatDecimal(row.averageResolutionHours(), 1, 1)} : '—'">—</td>
+                                     ? ${#numbers.formatDecimal(row.averageResolutionHours(), 1, 1)} : '-'">-</td>
                         <td class="text-end"
                             th:text="${row.averageRating() != null}
-                                     ? ${#numbers.formatDecimal(row.averageRating(), 1, 2)} : '—'">—</td>
+                                     ? ${#numbers.formatDecimal(row.averageRating(), 1, 2)} : '-'">-</td>
                     </tr>
                     </tbody>
                 </table>

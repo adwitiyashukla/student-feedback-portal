@@ -3,14 +3,14 @@
 The corpus is generated from per-category templates rather than checked in as
 a flat CSV. Two reasons:
 
-* it stays reviewable — a reader can see the vocabulary each label is built
+* it stays reviewable - a reader can see the vocabulary each label is built
   from, instead of scrolling a thousand rows;
-* it is reproducible — generation is seeded, so ``train.py`` produces the same
+* it is reproducible - generation is seeded, so ``train.py`` produces the same
   model on every machine and the accuracy figure in the README means something.
 
 In a production deployment this module would be replaced by real historical
-tickets exported from the portal. The interface — :func:`build_corpus`
-returning ``(texts, labels)`` — is deliberately the same either way, so
+tickets exported from the portal. The interface - :func:`build_corpus`
+returning ``(texts, labels)`` - is deliberately the same either way, so
 swapping in real data changes nothing downstream.
 """
 

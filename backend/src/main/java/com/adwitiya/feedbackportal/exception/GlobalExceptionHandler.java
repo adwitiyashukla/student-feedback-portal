@@ -42,7 +42,7 @@ import java.util.UUID;
  * failures from the Thymeleaf controllers in {@code web.ui} and answered a
  * browser navigation with a wall of raw JSON. UI errors are left to Spring
  * Boot's error handling, which resolves {@code templates/error/4xx.html} and
- * {@code templates/error/5xx.html} — Boot looks up {@code error/<status>},
+ * {@code templates/error/5xx.html} - Boot looks up {@code error/<status>},
  * then {@code error/<series>xx}, then a root-level {@code error}. A file at
  * {@code templates/error/error.html} matches none of those and left Tomcat's
  * stock white-on-grey page to leak through.</p>
