@@ -93,7 +93,7 @@ Spring Boot 3.3 on Java 21, serving both a REST API and a server-rendered Thymel
 Flyway migrations, Redis for caching and rate limiting, and a separate FastAPI service for the text
 classification. All of it runs under Docker Compose.
 
-Three things I'd point at if someone asked what's interesting in here:
+Three interesting facts:
 
 **Two security filter chains instead of one.** The API uses JWTs and is stateless, so CSRF tokens
 do nothing for it. The UI uses a session cookie, so CSRF matters a lot. Trying to serve both from
