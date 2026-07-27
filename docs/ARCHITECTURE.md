@@ -1,7 +1,7 @@
 # Architecture
 
-Design decisions and the reasoning behind them. For what this replaced, see
-[`MIGRATION.md`](MIGRATION.md).
+Design decisions and the reasoning behind them. For the endpoint reference,
+see [`API.md`](API.md).
 
 ---
 
