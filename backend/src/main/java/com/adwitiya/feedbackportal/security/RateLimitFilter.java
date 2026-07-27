@@ -1,6 +1,7 @@
 package com.adwitiya.feedbackportal.security;
 
 import com.adwitiya.feedbackportal.config.properties.AppProperties;
+import com.adwitiya.feedbackportal.util.LogSanitizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -56,7 +57,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         long used = incrementAndGet(clientKey(request, authEndpoint));
         if (used > limit) {
-            log.warn("Rate limit exceeded for {} on {} ({} > {})", clientIp(request), path, used, limit);
+            log.warn("Rate limit exceeded for {} on {} ({} > {})",
+                    LogSanitizer.clean(clientIp(request)), LogSanitizer.clean(path), used, limit);
             rejectWithTooManyRequests(request, response, limit);
             return;
         }

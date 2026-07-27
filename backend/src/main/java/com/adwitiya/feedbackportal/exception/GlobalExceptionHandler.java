@@ -1,5 +1,6 @@
 package com.adwitiya.feedbackportal.exception;
 
+import com.adwitiya.feedbackportal.util.LogSanitizer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -104,60 +105,62 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentTypeMismatchException.class,
             MissingServletRequestParameterException.class,
             HttpMessageNotReadableException.class})
-    public ProblemDetail handleMalformedRequest(Exception ex, HttpServletRequest request) {
+    public ProblemDetail handleMalformedRequest(HttpServletRequest request) {
         return problem(HttpStatus.BAD_REQUEST, "Bad Request",
                 "The request could not be parsed. Check the parameter types and JSON body.",
                 "malformed-request", request);
     }
 
     @ExceptionHandler({BadCredentialsException.class})
-    public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+    public ProblemDetail handleBadCredentials(HttpServletRequest request) {
         // Deliberately identical whether the account exists or not.
         return problem(HttpStatus.UNAUTHORIZED, "Unauthenticated",
                 "Invalid email or password.", "bad-credentials", request);
     }
 
     @ExceptionHandler(LockedException.class)
-    public ProblemDetail handleLocked(LockedException ex, HttpServletRequest request) {
+    public ProblemDetail handleLocked(HttpServletRequest request) {
         return problem(HttpStatus.LOCKED, "Account Locked",
                 "This account is temporarily locked after repeated failed sign-in attempts.",
                 "account-locked", request);
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ProblemDetail handleDisabled(DisabledException ex, HttpServletRequest request) {
+    public ProblemDetail handleDisabled(HttpServletRequest request) {
         return problem(HttpStatus.FORBIDDEN, "Account Disabled",
                 "This account has been disabled. Contact the administrator.", "account-disabled", request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ProblemDetail handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+    public ProblemDetail handleAccessDenied(HttpServletRequest request) {
         return problem(HttpStatus.FORBIDDEN, "Forbidden",
                 "Your account does not have permission to perform this action.", "forbidden", request);
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)
-    public ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex, HttpServletRequest request) {
+    public ProblemDetail handleOptimisticLock(HttpServletRequest request) {
         return problem(HttpStatus.CONFLICT, "Conflict",
                 "This record was modified by someone else. Reload and try again.", "stale-record", request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
-        log.warn("Database constraint violated on {}: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
+        log.warn("Database constraint violated on {}: {}",
+                LogSanitizer.clean(request.getRequestURI()),
+                LogSanitizer.clean(ex.getMostSpecificCause().getMessage()));
         return problem(HttpStatus.CONFLICT, "Conflict",
                 "The request conflicts with existing data.", "data-integrity", request);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+    public ProblemDetail handleUploadTooLarge(HttpServletRequest request) {
         return problem(HttpStatus.PAYLOAD_TOO_LARGE, "Payload Too Large",
                 "The uploaded file exceeds the maximum allowed size.", "upload-too-large", request);
     }
 
     @ExceptionHandler(StorageException.class)
     public ProblemDetail handleStorage(StorageException ex, HttpServletRequest request) {
-        log.error("Attachment storage failure on {}", request.getRequestURI(), ex);
+        log.error("Attachment storage failure on {}", LogSanitizer.clean(request.getRequestURI()), ex);
         return problem(HttpStatus.SERVICE_UNAVAILABLE, "Storage Unavailable",
                 "The file store is temporarily unavailable. Please retry.", "storage", request);
     }
@@ -169,13 +172,12 @@ public class GlobalExceptionHandler {
      * the last-resort handler and fill the log with ERROR-level stack traces.
      */
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
-    public ProblemDetail handleNoHandler(Exception ex, HttpServletRequest request) {
+    public ProblemDetail handleNoHandler(HttpServletRequest request) {
         return problem(HttpStatus.NOT_FOUND, "Not Found", "No endpoint matches this path.", "not-found", request);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException ex,
-                                                  HttpServletRequest request) {
+    public ProblemDetail handleMethodNotSupported(HttpServletRequest request) {
         return problem(HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed",
                 "%s is not supported on this path.".formatted(request.getMethod()),
                 "method-not-allowed", request);
@@ -189,7 +191,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleUnexpected(Exception ex, HttpServletRequest request) {
         String correlationId = UUID.randomUUID().toString();
         log.error("Unhandled exception [{}] on {} {}", correlationId,
-                request.getMethod(), request.getRequestURI(), ex);
+                LogSanitizer.clean(request.getMethod()),
+                LogSanitizer.clean(request.getRequestURI()), ex);
 
         ProblemDetail detail = problem(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
                 "Something went wrong. Quote reference %s when reporting this.".formatted(correlationId),
