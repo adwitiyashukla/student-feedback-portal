@@ -1,10 +1,3 @@
-/* ===================================================================
-   Student Feedback Portal - application styles
-
-   Layered on top of Bootstrap 5; only the things Bootstrap does not
-   already provide live here.
-   =================================================================== */
-
 :root {
     --sfp-brand: #4f46e5;
     --sfp-brand-dark: #3730a3;
@@ -14,7 +7,6 @@ body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* ---- Brand mark ---- */
 .brand-dot {
     display: inline-block;
     width: .6rem;
@@ -25,13 +17,11 @@ body {
     box-shadow: 0 0 0 .2rem rgba(79, 70, 229, .25);
 }
 
-/* ---- Sign-in page ---- */
 .login-page {
     min-height: 100vh;
     background: linear-gradient(135deg, var(--sfp-brand-dark) 0%, var(--sfp-brand) 55%, #6366f1 100%);
 }
 
-/* ---- Dashboard metric cards ---- */
 .stat-card {
     border-left: .3rem solid var(--bs-border-color) !important;
 }
@@ -41,7 +31,6 @@ body {
 .stat-card.tone-green { border-left-color: #10b981 !important; }
 .stat-card.tone-red   { border-left-color: #ef4444 !important; }
 
-/* ---- Conversation thread ---- */
 .comment {
     padding: .75rem 1rem;
     border-radius: .5rem;
@@ -53,7 +42,6 @@ body {
     border: 1px dashed #f0c36d;
 }
 
-/* ---- Status history timeline ---- */
 .timeline {
     list-style: none;
     margin: 0;
@@ -81,18 +69,10 @@ body {
     padding-bottom: 0;
 }
 
-/* ---- Tables ---- */
 .table > :not(caption) > * > * {
     padding: .7rem .75rem;
 }
 
-/* ---- Charts ----
-   Chart.js is configured with maintainAspectRatio:false, which makes the
-   canvas take its size from its parent. The parent therefore MUST have a
-   height that does not itself depend on the canvas. Without this, each
-   resize grows the canvas, which grows the parent, which triggers another
-   resize - the canvas expands without limit and the page scrolls itself.
-   position:relative is required by Chart.js's resize observer. */
 .chart-box {
     position: relative;
     width: 100%;

@@ -16,14 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Creates the first super-administrator on an otherwise empty database.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class BootstrapRunner implements ApplicationRunner {
-
     private static final String DEFAULT_DEPARTMENT_CODE = "IT";
 
     private final UserRepository userRepository;

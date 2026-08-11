@@ -11,7 +11,7 @@ Two deployable services and three backing stores.
 
 ```
                           ┌───────────────────────────────────────┐
-  Browser ───────────────▶│  Spring Boot 3.3 · Java 21            │
+  Browser ───────────────▶│  Spring Boot 3.3 - Java 21            │
   session cookie          │                                       │
                           │  ┌─────────────────────────────────┐  │
   API client ────────────▶│  │ @Order(1)  /api/**              │  │  stateless
@@ -22,11 +22,11 @@ Two deployable services and three backing stores.
                           │  │   form login, CSRF, Thymeleaf   │  │  redirects
                           │  └─────────────────────────────────┘  │
                           │                                       │
-                          │  web → service → repository → JPA     │
+                          │  web -> service -> repository -> JPA  │
                           └──┬──────────────┬─────────────────┬───┘
                              │              │                 │
                   ┌──────────▼───┐  ┌───────▼────────┐  ┌─────▼──────────────┐
-                  │  MySQL 8.4   │  │  Redis 7       │  │  FastAPI · Python  │
+                  │  MySQL 8.4   │  │  Redis 7       │  │  FastAPI - Python  │
                   │  Flyway      │  │  cache         │  │  scikit-learn      │
                   │  HikariCP    │  │  rate limits   │  │  X-API-Key         │
                   └──────────────┘  └────────────────┘  └────────────────────┘
@@ -92,7 +92,7 @@ their own rows back.
 
 Three layers, deliberately overlapping:
 
-1. **URL rules** in `SecurityConfig` - coarse, role-based (`/api/v1/admin/**` → `SUPER_ADMIN`).
+1. **URL rules** in `SecurityConfig` - coarse, role-based (`/api/v1/admin/**` -> `SUPER_ADMIN`).
 2. **Method security** - `@PreAuthorize("@feedbackAccess.canManage(#id, principal)")` for
    record-level ownership.
 3. **Query scoping** - the specification above, so a list can never return a row the caller should
@@ -274,11 +274,11 @@ take the portal down.
 ```
 POST /api/v1/analyze          X-API-Key: <shared secret>
 { "title": "...", "text": "..." }
-   ↓
-sentiment  → lexicon with negation, intensifiers, clause boundaries
-category   → TF-IDF (word 1-2 ∪ char 3-5) → LogisticRegression, 10 labels
-priority   → explicit rules over sentiment + category + urgency vocabulary
-keywords   → IDF-weighted terms from the fitted vectoriser
+   v
+sentiment  -> lexicon with negation, intensifiers, clause boundaries
+category   -> TF-IDF (word 1-2 ∪ char 3-5) -> LogisticRegression, 10 labels
+priority   -> explicit rules over sentiment + category + urgency vocabulary
+keywords   -> IDF-weighted terms from the fitted vectoriser
 ```
 
 **Why a lexicon and not a transformer.** The target is a small Fargate task that must cold-start in
@@ -344,8 +344,8 @@ that waits on them, so `up` either reaches a working system or fails visibly.
 ```
 Internet ──▶ ALB (public subnets, :443)
                 │
-                ├──▶ ECS Fargate · backend    (private subnets)
-                └──▶ ECS Fargate · analytics  (private, no ingress from the internet)
+                ├──▶ ECS Fargate - backend    (private subnets)
+                └──▶ ECS Fargate - analytics  (private, no ingress from the internet)
                             │
                             ├──▶ RDS MySQL 8  (private, encrypted, automated backups)
                             ├──▶ S3           (attachments, SSE, versioned, public access blocked)

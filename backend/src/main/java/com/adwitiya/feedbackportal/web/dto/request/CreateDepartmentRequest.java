@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Creates a routing destination for feedback. */
 public record CreateDepartmentRequest(
 
         @NotBlank

@@ -4,13 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
- * Self-service password change.
- *
- * <p>The current password is required even though the caller is already
- * authenticated: it stops a hijacked session from locking the real owner out.
- * All refresh tokens are revoked on success.</p>
- */
 public record ChangePasswordRequest(
 
         @NotBlank(message = "Current password is required")

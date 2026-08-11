@@ -23,13 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Authentication endpoints. */
 @Tag(name = "Authentication", description = "Sign in, refresh, sign out and change password")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
     private final AuthService authService;
 
     @Operation(summary = "Sign in and receive an access/refresh token pair",

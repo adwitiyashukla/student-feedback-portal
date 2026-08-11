@@ -22,18 +22,10 @@ import java.util.Date;
 import java.util.HexFormat;
 import java.util.Optional;
 
-/**
- * Issues and verifies JSON Web Tokens.
- *
- * <p>Access tokens are short-lived and stateless. Refresh tokens are opaque
- * random strings - not JWTs - and only their SHA-256 hash reaches the
- * database, so the refresh side of the flow stays revocable.</p>
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-
     public static final String CLAIM_ROLE = "role";
     public static final String CLAIM_USER_ID = "uid";
     public static final String CLAIM_DEPARTMENT_ID = "dept";
@@ -45,18 +37,6 @@ public class JwtService {
     private final JwtProperties properties;
     private SecretKey signingKey;
 
-    /**
-     * Decodes and validates the configured signing key at startup.
-     *
-     * <p>Public because it is a lifecycle hook with a published failure
-     * contract, and because the unit tests live in a sibling package. The
-     * project splits tests by kind ({@code unit}, {@code integration}) rather
-     * than mirroring production packages, so package-private visibility here
-     * simply made the test sources fail to compile.</p>
-     *
-     * @throws IllegalStateException if the key is absent or shorter than
-     *                               {@link JwtProperties#MIN_SECRET_BYTES}
-     */
     @PostConstruct
     public void initialiseSigningKey() {
         String secret = properties.getSecret();
@@ -79,12 +59,6 @@ public class JwtService {
         log.info("JWT signing key initialised ({} bytes, issuer '{}')", keyBytes.length, properties.getIssuer());
     }
 
-    /**
-     * Mints a signed access token for a principal.
-     *
-     * @param principal the authenticated user
-     * @return a compact JWS string
-     */
     public String generateAccessToken(AppUserDetails principal) {
         Instant now = Instant.now();
         Instant expiry = now.plus(properties.getAccessTokenTtl());
@@ -94,8 +68,7 @@ public class JwtService {
                 .issuer(properties.getIssuer())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
-                // Individual claim() calls rather than claims(Map): the map overload's
-                // merge-versus-replace behaviour has changed across jjwt versions.
+
                 .claim(CLAIM_USER_ID, principal.id())
                 .claim(CLAIM_ROLE, principal.role().name())
                 .claim(CLAIM_DEPARTMENT_ID, principal.departmentId() == null ? -1L : principal.departmentId())
@@ -104,12 +77,6 @@ public class JwtService {
                 .compact();
     }
 
-    /**
-     * Verifies a token's signature, issuer and expiry.
-     *
-     * @param token compact JWS string
-     * @return the claim set, or empty if the token is not valid
-     */
     public Optional<Claims> parseAccessToken(String token) {
         try {
             Claims claims = Jwts.parser()
@@ -130,19 +97,12 @@ public class JwtService {
         }
     }
 
-    /** @return a 256-bit URL-safe random string to hand to the client as a refresh token */
     public String generateRefreshTokenValue() {
         byte[] bytes = new byte[32];
         SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    /**
-     * Hashes a refresh token for storage and lookup.
-     *
-     * @param rawToken the value given to the client
-     * @return lower-case hex SHA-256 digest
-     */
     public String hashRefreshToken(String rawToken) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

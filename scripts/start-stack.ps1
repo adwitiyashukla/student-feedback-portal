@@ -1,29 +1,3 @@
-<#
-    Student Feedback Portal - staged startup for Windows / Docker Desktop
-
-    Why this exists
-    ---------------
-    `docker compose up --build backend` starts MySQL, Redis and the analytics
-    service at the same time as it compiles 119 Java files. On a laptop that is
-    four containers plus a cold Maven build competing for the same two cores,
-    which is enough to make the Docker daemon stop answering.
-
-    This script does the same work, one stage at a time, and waits for each
-    stage to settle before starting the next. It is slower on paper and far
-    kinder to the machine.
-
-    Usage
-    -----
-        cd "C:\Users\HP\Desktop\1st, 2nd year projeects\StudentFeedbackPortal"
-        powershell -ExecutionPolicy Bypass -File .\scripts\start-stack.ps1
-
-    Options
-    -------
-        -SkipBuild     Reuse existing images; only start containers.
-        -Down          Stop and remove the stack, then exit.
-        -Monitoring    Also start Prometheus and Grafana (heavier).
-#>
-
 [CmdletBinding()]
 param(
     [switch]$SkipBuild,
@@ -31,25 +5,10 @@ param(
     [switch]$Monitoring
 )
 
-# Deliberately NOT 'Stop'.
-#
-# The docker CLI writes ordinary, harmless output to stderr - build progress
-# from BuildKit, and warnings like "No blkio throttle.read_bps_device support"
-# on WSL 2. Under $ErrorActionPreference = 'Stop', PowerShell promotes native
-# stderr to a terminating error and kills the script on a message that means
-# nothing. Every docker call below is checked explicitly via $LASTEXITCODE
-# instead, which is the reliable signal.
 $ErrorActionPreference = 'Continue'
 
-# Run from the repo root regardless of where the script was invoked from.
-# -LiteralPath matters here: this repo's path contains a comma, which
-# PowerShell would otherwise be tempted to read as an array separator.
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
-
-# ---------------------------------------------------------------------------
-#  Output helpers
-# ---------------------------------------------------------------------------
 
 $script:StageNumber = 0
 
@@ -65,9 +24,6 @@ function Write-Stage {
 function Write-Info { param([string]$m) Write-Host "  $m" -ForegroundColor Gray }
 
 function Clear-StatusLine {
-    # The spinner writes an in-place status line with `r and no newline.
-    # Returning the cursor alone is not enough - the old text stays on screen
-    # and the next message overwrites only part of it. Blank the line first.
     Write-Host ("`r" + (' ' * 78) + "`r") -NoNewline
 }
 function Write-Ok   { param([string]$m) Write-Host "  OK   $m" -ForegroundColor Green }
@@ -87,13 +43,8 @@ function Stop-WithError {
     exit 1
 }
 
-# ---------------------------------------------------------------------------
-#  Pre-flight
-# ---------------------------------------------------------------------------
-
 function Test-DockerReady {
     Write-Info 'Checking that the Docker daemon is responding...'
-    # 2>$null discards docker's benign WSL warnings; the exit code is what matters.
     docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Stop-WithError `
@@ -104,8 +55,6 @@ function Test-DockerReady {
 }
 
 function Show-DockerMemory {
-    # Total memory the Docker VM has been given. Anything under ~4 GB will
-    # struggle with a Spring Boot build.
     $bytes = (docker info --format '{{.MemTotal}}' 2>$null)
     if ($LASTEXITCODE -eq 0 -and $bytes -match '^\d+$') {
         $gb = [math]::Round([double]$bytes / 1GB, 1)
@@ -130,15 +79,8 @@ function Test-EnvFile {
     Write-Ok '.env present.'
 }
 
-# ---------------------------------------------------------------------------
-#  Health waiting
-# ---------------------------------------------------------------------------
-
 function Wait-ForHealthy {
-    <#
-        Polls a container's healthcheck until it reports healthy.
-        Returns nothing; throws via Stop-WithError on timeout or crash.
-    #>
+
     param(
         [Parameter(Mandatory)][string]$ContainerName,
         [int]$TimeoutSeconds = 180
@@ -154,7 +96,7 @@ function Wait-ForHealthy {
 
         if ($LASTEXITCODE -ne 0) {
             Start-Sleep -Seconds 2
-            continue    # container may not exist yet
+            continue
         }
 
         switch ($state) {
@@ -173,7 +115,6 @@ function Wait-ForHealthy {
             }
         }
 
-        # Catch a container that exited instead of becoming healthy.
         $running = docker inspect --format '{{.State.Running}}' $ContainerName 2>$null
         if ($running -eq 'false') {
             Clear-StatusLine
@@ -195,10 +136,6 @@ function Wait-ForHealthy {
         "Check its logs:`n    docker logs $ContainerName"
 }
 
-# ---------------------------------------------------------------------------
-#  Teardown
-# ---------------------------------------------------------------------------
-
 if ($Down) {
     Write-Stage 'Stopping the stack'
     docker compose down
@@ -206,10 +143,6 @@ if ($Down) {
     Write-Info 'To delete the database too: docker compose down -v'
     exit 0
 }
-
-# ---------------------------------------------------------------------------
-#  Main sequence
-# ---------------------------------------------------------------------------
 
 $started = Get-Date
 
@@ -279,10 +212,6 @@ if ($Monitoring) {
     docker compose up -d prometheus grafana
     Write-Ok 'Monitoring started.'
 }
-
-# ---------------------------------------------------------------------------
-#  Summary
-# ---------------------------------------------------------------------------
 
 $elapsed = [math]::Round(((Get-Date) - $started).TotalMinutes, 1)
 

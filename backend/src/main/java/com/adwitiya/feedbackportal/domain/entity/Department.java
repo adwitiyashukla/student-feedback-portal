@@ -14,9 +14,6 @@ import lombok.Setter;
 
 import java.util.Objects;
 
-/**
- * An organisational unit that feedback can be routed to.
- */
 @Entity
 @Table(name = "departments")
 @Getter
@@ -25,7 +22,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Department extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

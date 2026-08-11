@@ -1,4 +1,3 @@
-"""Tests for the lexicon-based sentiment scorer."""
 
 from __future__ import annotations
 
@@ -72,12 +71,12 @@ class TestNegation:
         assert result.score > 0
 
     def test_negation_scope_ends_at_clause_break(self) -> None:
-        # "not ideal, but the staff were excellent" - the praise must survive.
+
         result = analyze_sentiment("Not ideal but the staff were excellent and helpful")
         assert result.label is SentimentLabel.POSITIVE
 
     def test_negation_window_expires(self) -> None:
-        # "helpful" sits well beyond the three-token window after "not".
+
         result = analyze_sentiment("not sure who to contact about this so I asked and they were helpful")
         assert result.score > 0
 

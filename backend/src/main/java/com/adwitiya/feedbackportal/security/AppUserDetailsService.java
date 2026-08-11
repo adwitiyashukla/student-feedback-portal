@@ -10,13 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Loads a principal by email for both the JWT filter and form login.
- */
 @Service
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
-
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 

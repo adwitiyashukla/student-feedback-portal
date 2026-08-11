@@ -1,8 +1,6 @@
 package com.adwitiya.feedbackportal.exception;
 
-/** Thrown when a requested record does not exist. Rendered as HTTP 404. */
 public class ResourceNotFoundException extends RuntimeException {
-
     public ResourceNotFoundException(String message) {
         super(message);
     }

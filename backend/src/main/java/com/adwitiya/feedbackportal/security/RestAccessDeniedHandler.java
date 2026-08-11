@@ -15,20 +15,15 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Returns RFC 7807 JSON when an authenticated caller lacks the required role.
- */
 @Component
 @RequiredArgsConstructor
 public class RestAccessDeniedHandler implements AccessDeniedHandler {
-
     private final ObjectMapper objectMapper;
 
     @Override
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
-
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), Map.of(

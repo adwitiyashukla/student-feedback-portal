@@ -21,21 +21,14 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Assembles dashboard statistics from SQL-side aggregates.
- */
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
-
     private static final List<FeedbackStatus> ACTIVE =
             List.of(FeedbackStatus.OPEN, FeedbackStatus.IN_PROGRESS, FeedbackStatus.AWAITING_STUDENT);
 
     private final FeedbackRepository feedbackRepository;
 
-    /**
-     * @param departmentId narrow to one department, or {@code null} for the whole institution
-     */
     @Cacheable(value = CacheConfig.CACHE_DASHBOARD, key = "#departmentId == null ? 'all' : #departmentId")
     @Transactional(readOnly = true)
     public DashboardResponse build(Long departmentId) {
@@ -86,7 +79,6 @@ public class DashboardService {
         return new DashboardResponse.TrendPoint(row.getPeriod(), row.getSubmitted(), row.getResolved());
     }
 
-    /** Institution-wide league table; a department admin only sees their own row. */
     private List<DashboardResponse.DepartmentPerformance> departmentPerformance(Long departmentId) {
         List<DepartmentStats> rows = feedbackRepository.aggregateByDepartment();
         return rows.stream()

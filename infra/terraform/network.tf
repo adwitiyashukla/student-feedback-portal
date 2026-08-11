@@ -1,11 +1,3 @@
-# =====================================================================
-#  VPC, subnets, gateways and security groups
-#
-#  Public subnets carry only the load balancer and the NAT gateway.
-#  Everything that holds data or runs application code sits in a private
-#  subnet with no route in from the internet.
-# =====================================================================
-
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -49,9 +41,6 @@ resource "aws_subnet" "private" {
   tags = { Name = "${local.name}-private-${local.azs[count.index]}", Tier = "private" }
 }
 
-# A single NAT gateway: outbound-only egress for the private subnets, so tasks
-# can pull images and reach Secrets Manager. One rather than one-per-AZ is a
-# deliberate cost trade for a portfolio deployment.
 resource "aws_eip" "nat" {
   domain = "vpc"
   tags   = { Name = "${local.name}-nat-eip" }
@@ -98,10 +87,6 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
-
-# ---------------------------------------------------------------------
-# Security groups - each tier only accepts traffic from the tier above it
-# ---------------------------------------------------------------------
 
 resource "aws_security_group" "alb" {
   name        = "${local.name}-alb-sg"

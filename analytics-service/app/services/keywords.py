@@ -1,9 +1,3 @@
-"""Keyword extraction for the admin triage view.
-
-Uses the fitted TF-IDF vocabulary where available so the terms surfaced are the
-same ones the classifier actually weighted, falling back to a frequency count
-when the model has not loaded.
-"""
 
 from __future__ import annotations
 
@@ -31,15 +25,6 @@ _NUMERIC = re.compile(r"^\d+$")
 
 
 def extract_keywords(text: str, limit: int = 8) -> list[str]:
-    """Pick the most informative terms in a document.
-
-    Args:
-        text: Title and body concatenated.
-        limit: Maximum number of keywords to return.
-
-    Returns:
-        Up to ``limit`` terms, most significant first.
-    """
     tokens = [
         token for token in tokenize(text)
         if len(token) >= MIN_TOKEN_LENGTH
@@ -53,7 +38,7 @@ def extract_keywords(text: str, limit: int = 8) -> list[str]:
     if weights:
         scored = Counter()
         for token in tokens:
-            # Unknown terms still score, just below any known term.
+
             scored[token] += weights.get(token, 0.5)
         return [term for term, _ in scored.most_common(limit)]
 
@@ -61,11 +46,6 @@ def extract_keywords(text: str, limit: int = 8) -> list[str]:
 
 
 def _tfidf_weights() -> dict[str, float]:
-    """Inverse-document-frequency weights from the fitted word vectoriser.
-
-    Returns:
-        A term-to-IDF mapping, or an empty dict when the model is not loaded.
-    """
     if not classifier.is_loaded:
         return {}
     try:

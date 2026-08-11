@@ -13,7 +13,6 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-
     Page<Notification> findByRecipientIdOrderByCreatedAtDesc(Long recipientId, Pageable pageable);
 
     List<Notification> findTop10ByRecipientIdOrderByCreatedAtDesc(Long recipientId);

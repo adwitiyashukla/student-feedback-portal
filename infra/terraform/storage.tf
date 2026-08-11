@@ -1,7 +1,3 @@
-# =====================================================================
-#  S3 attachment bucket and ECR repositories
-# =====================================================================
-
 resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
@@ -11,8 +7,6 @@ resource "aws_s3_bucket" "attachments" {
   tags   = { Name = "${local.name}-attachments" }
 }
 
-# Attachments are photographs students upload to complaints. Nothing about
-# this bucket should ever be reachable without a signed request.
 resource "aws_s3_bucket_public_access_block" "attachments" {
   bucket = aws_s3_bucket.attachments.id
 
@@ -59,10 +53,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "attachments" {
     }
   }
 }
-
-# ---------------------------------------------------------------------
-# Container registries
-# ---------------------------------------------------------------------
 
 resource "aws_ecr_repository" "backend" {
   name                 = "${local.name}/backend"

@@ -19,15 +19,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.UUID;
 
-/**
- * Stores attachments on the container filesystem. Development default.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.storage.type", havingValue = "LOCAL", matchIfMissing = true)
 public class LocalFileStorageService implements FileStorageService {
-
     private final StorageProperties properties;
     private Path rootDirectory;
 
@@ -77,12 +73,6 @@ public class LocalFileStorageService implements FileStorageService {
         }
     }
 
-    /**
-     * Resolves a key against the storage root and refuses to escape it.
-     *
-     * <p>Without this check a key of {@code ../../etc/passwd} would be read
-     * straight off the host filesystem.</p>
-     */
     private Path resolveWithinRoot(String storageKey) {
         Path resolved = rootDirectory.resolve(storageKey).normalize();
         if (!resolved.startsWith(rootDirectory)) {

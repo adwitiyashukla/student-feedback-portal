@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-"""Train the category classifier and write the artifact to disk.
 
-Run during the Docker build so the shipped image starts with a warm model:
-
-    python train.py
-
-Prints the 5-fold cross-validated accuracy, which is the number quoted in the
-project README.
-"""
 
 from __future__ import annotations
 

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-/** Student satisfaction rating, accepted only once a ticket is resolved. */
 public record RateFeedbackRequest(
 
         @NotNull(message = "Rating is required")

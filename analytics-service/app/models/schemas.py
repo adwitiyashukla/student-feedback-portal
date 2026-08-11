@@ -1,9 +1,3 @@
-"""Request and response models.
-
-These are the contract with the Spring Boot backend. Field names are snake_case
-because that is what the Java ``AnalysisResult`` record maps with
-``@JsonProperty``.
-"""
 
 from __future__ import annotations
 
@@ -39,7 +33,6 @@ class Category(str, Enum):
 
 
 class AnalyzeRequest(BaseModel):
-    """One piece of feedback to classify."""
 
     title: str = Field(default="", max_length=300, description="Feedback title")
     text: str = Field(..., min_length=1, max_length=20_000, description="Feedback body")
@@ -61,12 +54,10 @@ class AnalyzeRequest(BaseModel):
 
     @property
     def combined(self) -> str:
-        """Title and body joined, which is what the models are trained on."""
         return f"{self.title} {self.text}".strip()
 
 
 class AnalyzeResponse(BaseModel):
-    """Model output returned to the backend."""
 
     sentiment_label: SentimentLabel
     sentiment_score: float = Field(..., ge=-1.0, le=1.0, description="Signed polarity")

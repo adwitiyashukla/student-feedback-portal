@@ -17,9 +17,6 @@ env:
 
 jobs:
 
-  # ===================================================================
-  #  Backend: compile, unit tests, integration tests, coverage gate
-  # ===================================================================
   backend:
     name: Backend (Java ${{ matrix.java }})
     runs-on: ubuntu-latest
@@ -52,11 +49,6 @@ jobs:
         working-directory: backend
         run: mvn -B clean compile
 
-      # `verify` runs surefire (unit tests) then failsafe (*IT integration
-      # tests). The integration tests start a real MySQL 8 through
-      # Testcontainers, so the Flyway migrations and every native query are
-      # exercised against the engine that runs in production - not H2
-      # pretending to be MySQL. JaCoCo's coverage gate runs in the same phase.
       - name: Tests, integration tests and coverage gate
         working-directory: backend
         run: mvn -B verify
@@ -76,9 +68,6 @@ jobs:
           path: backend/target/site/jacoco/
           retention-days: 14
 
-  # ===================================================================
-  #  Analytics service: lint, type-check, tests with coverage
-  # ===================================================================
   analytics:
     name: Analytics service
     runs-on: ubuntu-latest
@@ -117,14 +106,6 @@ jobs:
           path: analytics-service/coverage.xml
           retention-days: 14
 
-  # ===================================================================
-  #  Repository-wide consistency checks
-  #
-  #  Catches the class of mistake a compiler finds late or not at all:
-  #  Thymeleaf fragments that do not exist, controllers naming templates
-  #  that were never written, demo accounts referenced by tests but absent
-  #  from the seed data, credentials committed by accident.
-  # ===================================================================
   consistency:
     name: Repository consistency
     runs-on: ubuntu-latest
@@ -148,9 +129,6 @@ jobs:
       - name: Verify
         run: NODE_PATH=$PWD/node_modules python scripts/verify.py
 
-  # ===================================================================
-  #  Container images build cleanly
-  # ===================================================================
   docker:
     name: Docker build
     runs-on: ubuntu-latest
@@ -185,12 +163,9 @@ jobs:
           image-ref: sfp-${{ matrix.service }}:ci
           format: table
           severity: HIGH,CRITICAL
-          exit-code: "0"          # report, do not block, on a student project
+          exit-code: "0"
           ignore-unfixed: true
 
-  # ===================================================================
-  #  Static analysis
-  # ===================================================================
   codeql:
     name: CodeQL
     runs-on: ubuntu-latest
@@ -228,9 +203,6 @@ jobs:
         with:
           category: /language:${{ matrix.language }}
 
-  # ===================================================================
-  #  Dependency and secret scanning
-  # ===================================================================
   security:
     name: Dependency & secret scan
     runs-on: ubuntu-latest
@@ -240,10 +212,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # v-prefixed tag on purpose. Aqua deleted the unprefixed tags (0.28.0 and
-      # friends) when they re-tagged everything in response to a supply chain
-      # attack; only 0.35.0 was kept for compatibility. An unprefixed pin now
-      # fails to resolve at all.
       - name: Scan the filesystem
         uses: aquasecurity/trivy-action@v0.36.0
         with:

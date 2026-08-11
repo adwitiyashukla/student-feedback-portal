@@ -10,16 +10,11 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * The workflow state machine.
- */
 @DisplayName("FeedbackStatus state machine")
 class FeedbackStatusTest {
-
     @Nested
     @DisplayName("permitted transitions")
     class Permitted {
-
         @ParameterizedTest(name = "{0} -> {1} is allowed")
         @CsvSource({
                 "OPEN, IN_PROGRESS",
@@ -40,7 +35,6 @@ class FeedbackStatusTest {
     @Nested
     @DisplayName("rejected transitions")
     class Rejected {
-
         @ParameterizedTest(name = "{0} -> {1} is rejected")
         @CsvSource({
                 "OPEN, OPEN",
@@ -66,7 +60,6 @@ class FeedbackStatusTest {
     @Nested
     @DisplayName("terminal and active classification")
     class Classification {
-
         @Test
         void closedAndRejectedAreTerminal() {
             assertThat(FeedbackStatus.CLOSED.isTerminal()).isTrue();

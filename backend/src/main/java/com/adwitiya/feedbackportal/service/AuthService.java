@@ -28,14 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
-/**
- * Sign-in, token refresh, sign-out and password change.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final AdminRepository adminRepository;
@@ -46,13 +42,6 @@ public class AuthService {
     private final AuditService auditService;
     private final UserMapper userMapper;
 
-    /**
-     * Authenticates a user and issues a token pair.
-     *
-     * @throws BadCredentialsException if the email or password is wrong
-     * @throws LockedException         if the account is locked out
-     * @throws DisabledException       if the account has been disabled
-     */
     @Transactional
     public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         String email = request.email().trim().toLowerCase();
@@ -60,7 +49,6 @@ public class AuthService {
 
         User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null) {
-            // Run the encoder anyway so timing does not distinguish the two cases.
             passwordEncoder.matches(request.password(), "$2a$12$" + "x".repeat(53));
             auditService.recordAuthEvent("LOGIN_FAILED", email, ip, "No such account");
             throw new BadCredentialsException("Invalid email or password");
@@ -91,12 +79,6 @@ public class AuthService {
         return issueTokens(user, principal, httpRequest);
     }
 
-    /**
-     * Rotates a refresh token.
-     *
-     * <p>The presented token is revoked and a new one issued, so a stolen
-     * token is usable at most once and its reuse is detectable.</p>
-     */
     @Transactional
     public AuthResponse refresh(String rawRefreshToken, HttpServletRequest httpRequest) {
         String hash = jwtService.hashRefreshToken(rawRefreshToken);
@@ -104,7 +86,6 @@ public class AuthService {
                 .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
 
         if (!stored.isUsable()) {
-            // A revoked token being presented suggests theft: drop every session.
             refreshTokenRepository.revokeAllForUser(stored.getUser().getId());
             auditService.recordAuthEvent("REFRESH_REUSE_DETECTED", stored.getUser().getEmail(),
                     clientIp(httpRequest), "All sessions revoked");
@@ -121,7 +102,6 @@ public class AuthService {
         return issueTokens(user, toPrincipal(user), httpRequest);
     }
 
-    /** Revokes a single session. Idempotent - signing out twice is not an error. */
     @Transactional
     public void logout(String rawRefreshToken) {
         if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
@@ -134,18 +114,12 @@ public class AuthService {
                 });
     }
 
-    /** Revokes every session belonging to a user. */
     @Transactional
     public void logoutEverywhere(Long userId) {
         int revoked = refreshTokenRepository.revokeAllForUser(userId);
         log.info("Revoked {} refresh tokens for user {}", revoked, userId);
     }
 
-    /**
-     * Changes the caller's own password and invalidates all their sessions.
-     *
-     * @throws BusinessRuleException if the current password is wrong or the new one is unchanged
-     */
     @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId)
@@ -179,8 +153,6 @@ public class AuthService {
                 .map(userMapper::toResponse)
                 .orElseGet(() -> userMapper.toResponse(user));
     }
-
-    // ------------------------------------------------------------------
 
     private AuthResponse issueTokens(User user, AppUserDetails principal, HttpServletRequest httpRequest) {
         String accessToken = jwtService.generateAccessToken(principal);

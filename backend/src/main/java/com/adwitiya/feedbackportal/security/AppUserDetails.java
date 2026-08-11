@@ -10,22 +10,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * The authenticated principal.
- *
- * <p>Deliberately a small immutable snapshot rather than the JPA entity: it is
- * placed in the HTTP session for the web UI, and putting a managed entity
- * there drags a detached object graph along with it.</p>
- *
- * @param id           user id
- * @param email        sign-in identifier
- * @param passwordHash BCrypt digest, erased after authentication
- * @param fullName     display name
- * @param role         application role
- * @param departmentId owning department, {@code null} for a super-administrator
- * @param enabled      whether the account is active
- * @param locked       whether the account is currently locked out
- */
 public record AppUserDetails(
         Long id,
         String email,
@@ -36,7 +20,6 @@ public record AppUserDetails(
         boolean enabled,
         boolean locked
 ) implements UserDetails, Serializable {
-
     public static AppUserDetails from(User user, Long departmentId) {
         return new AppUserDetails(
                 user.getId(),

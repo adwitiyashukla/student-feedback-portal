@@ -1,4 +1,3 @@
-# Integration tests. Testcontainers supplies the datasource URL at runtime.
 spring:
   flyway:
     locations: classpath:db/migration

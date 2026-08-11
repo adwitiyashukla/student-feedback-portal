@@ -31,7 +31,7 @@ was starved, not broken.
 
 ### 1. Give Docker enough memory
 
-Docker Desktop → **Settings** → **Resources** → **Memory**.
+Docker Desktop -> **Settings** -> **Resources** -> **Memory**.
 
 Set it to **6 GB** if your laptop has 16 GB of RAM, or **4 GB** if it has 8 GB.
 Click **Apply & Restart**.
@@ -118,7 +118,7 @@ Containers keep running in the background until you stop them, including
 after you close the terminal.
 
 **To check whether a build is really working**, don't use `docker stats` - it
-needs the same daemon that's under load. Use Task Manager → Details, and look
+needs the same daemon that's under load. Use Task Manager -> Details, and look
 at `Vmmem` / `Vmmem WSL` CPU. High CPU means it's compiling.
 
 ---

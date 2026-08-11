@@ -1,16 +1,5 @@
--- =====================================================================
--- V900 : Demo dataset (dev / docker profiles only)
---
--- Loaded from classpath:db/demo, which is only on the Flyway path under
--- the `dev` and `docker` profiles. Production migrates from
--- classpath:db/migration alone and never sees this file.
---
--- Every demo account uses the password: Password#123
--- =====================================================================
-
 SET NAMES utf8mb4;
 
--- ---------- Administrators ----------
 INSERT INTO users (email, password_hash, full_name, phone, role, enabled, account_locked,
                    failed_login_attempts, created_at, updated_at, version)
 VALUES
@@ -46,7 +35,6 @@ JOIN users u ON u.email = x.email
 JOIN departments d ON d.code = x.dept
 ON DUPLICATE KEY UPDATE designation = VALUES(designation);
 
--- ---------- Students ----------
 INSERT INTO users (email, password_hash, full_name, phone, role, enabled, account_locked,
                    failed_login_attempts, created_at, updated_at, version)
 VALUES
@@ -130,7 +118,6 @@ JOIN users u ON u.email = x.email
 JOIN departments d ON d.code = x.dept
 ON DUPLICATE KEY UPDATE program = VALUES(program);
 
--- ---------- Feedback ----------
 INSERT INTO feedback (ticket_number, title, description, category, priority, status,
                       submitted_by_id, assigned_to_id, department_id, anonymous,
                       sentiment_label, sentiment_score, suggested_category, suggested_priority,
@@ -241,7 +228,6 @@ LEFT JOIN users au ON au.email = x.admin_email
 LEFT JOIN admins a ON a.user_id = au.id
 WHERE NOT EXISTS (SELECT 1 FROM feedback f WHERE f.ticket_number = x.ticket);
 
--- ---------- Comment threads ----------
 INSERT INTO feedback_comments (feedback_id, author_id, body, internal_note, created_at)
 SELECT f.id, u.id, x.body, x.internal_note, x.created_at FROM (
     SELECT 'FB-2026-000001' AS ticket, 'arjun.nair@university.edu' AS author_email, 'Received. We are looking into this and will get back to you shortly.' AS body, 0 AS internal_note, '2026-07-05 19:00:00' AS created_at
@@ -492,7 +478,6 @@ WHERE NOT EXISTS (
     SELECT 1 FROM feedback_comments c WHERE c.feedback_id = f.id AND c.created_at = x.created_at
 );
 
--- ---------- Status history ----------
 INSERT INTO feedback_status_history (feedback_id, from_status, to_status, changed_by_id, note, changed_at)
 SELECT f.id, x.from_status, x.to_status, u.id, x.note, x.changed_at FROM (
     SELECT 'FB-2026-000001' AS ticket, 'OPEN' AS from_status, 'IN_PROGRESS' AS to_status, 'arjun.nair@university.edu' AS actor_email, 'Picked up by the department.' AS note, '2026-07-05 19:00:00' AS changed_at

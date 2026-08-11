@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
-
     @EntityGraph(attributePaths = {"user", "department"})
     Optional<Student> findByRollNumberIgnoreCase(String rollNumber);
 
@@ -25,10 +24,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     boolean existsByRollNumberIgnoreCase(String rollNumber);
 
-    /**
-     * Paged student directory. The entity graph is what keeps this from
-     * degenerating into an N+1 query per row.
-     */
     @EntityGraph(attributePaths = {"user", "department"})
     @Query("""
             SELECT s FROM Student s

@@ -23,12 +23,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/** Server-rendered staff area. */
 @Controller
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
 public class AdminUiController {
-
     private final DashboardService dashboardService;
     private final FeedbackService feedbackService;
     private final DepartmentService departmentService;
@@ -39,7 +37,6 @@ public class AdminUiController {
     public String dashboard(@AuthenticationPrincipal AppUserDetails principal,
                             @RequestParam(required = false) Long departmentId,
                             Model model) {
-        // A department administrator is pinned to their own department.
         Long scope = principal.isSuperAdmin() ? departmentId : principal.departmentId();
         DashboardResponse stats = dashboardService.build(scope);
 

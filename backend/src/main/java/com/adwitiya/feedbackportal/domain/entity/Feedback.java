@@ -30,9 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * A single piece of student feedback and its whole lifecycle.
- */
 @Entity
 @Table(name = "feedback")
 @Getter
@@ -41,12 +38,10 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Feedback extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Human-readable identifier, e.g. {@code FB-2026-000042}. Assigned by the service. */
     @Column(name = "ticket_number", nullable = false, unique = true, length = 24)
     private String ticketNumber;
 
@@ -82,18 +77,14 @@ public class Feedback extends BaseEntity {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    /** When true the submitter's name is withheld from administrators in the UI. */
     @Builder.Default
     @Column(nullable = false)
     private boolean anonymous = false;
-
-    // ---------- Enrichment written by the Python analytics service ----------
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sentiment_label", length = 20)
     private SentimentLabel sentimentLabel;
 
-    /** Signed polarity in [-1.0, 1.0]; negative means dissatisfied. */
     @Column(name = "sentiment_score")
     private Double sentimentScore;
 
@@ -111,8 +102,6 @@ public class Feedback extends BaseEntity {
     @Column(name = "analysed_at")
     private Instant analysedAt;
 
-    // ---------- SLA and lifecycle timestamps ----------
-
     @Column(name = "due_at")
     private Instant dueAt;
 
@@ -122,7 +111,6 @@ public class Feedback extends BaseEntity {
     @Column(name = "closed_at")
     private Instant closedAt;
 
-    /** 1-5 star rating the student may leave once the ticket is resolved. */
     @Column(name = "satisfaction_rating")
     private Integer satisfactionRating;
 
@@ -144,15 +132,6 @@ public class Feedback extends BaseEntity {
     @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-    /**
-     * Applies a workflow transition, refusing anything the state machine in
-     * {@link FeedbackStatus} does not permit.
-     *
-     * @param target    the state to move to
-     * @param actor     the user performing the change, recorded in the history
-     * @param note      optional free-text justification
-     * @throws IllegalStateException if the transition is not allowed
-     */
     public void transitionTo(FeedbackStatus target, User actor, String note) {
         if (!status.canTransitionTo(target)) {
             throw new IllegalStateException(
@@ -170,7 +149,6 @@ public class Feedback extends BaseEntity {
                 this.resolvedAt = now;
             }
         } else if (target == FeedbackStatus.IN_PROGRESS) {
-            // Reopening a resolved ticket clears the resolution stamp.
             this.resolvedAt = null;
             this.closedAt = null;
         }
@@ -185,25 +163,21 @@ public class Feedback extends BaseEntity {
                 .build());
     }
 
-    /** Adds a comment and wires up both sides of the association. */
     public void addComment(FeedbackComment comment) {
         comment.setFeedback(this);
         this.comments.add(comment);
     }
 
-    /** Adds an attachment and wires up both sides of the association. */
     public void addAttachment(Attachment attachment) {
         attachment.setFeedback(this);
         this.attachments.add(attachment);
     }
 
-    /** Recomputes {@link #dueAt} from the current priority and creation time. */
     public void applySla() {
         Instant base = getCreatedAt() != null ? getCreatedAt() : Instant.now();
         this.dueAt = base.plus(priority.getResolutionSla());
     }
 
-    /** True when the ticket is still active and has passed its SLA deadline. */
     public boolean isOverdue() {
         return status.isActive() && dueAt != null && Instant.now().isAfter(dueAt);
     }

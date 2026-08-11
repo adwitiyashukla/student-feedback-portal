@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("JwtService")
 class JwtServiceTest {
-
     private static final String SECRET =
             Base64.getEncoder().encodeToString("a".repeat(64).getBytes());
 

@@ -29,14 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Account administration.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final AdminRepository adminRepository;
@@ -168,9 +164,6 @@ public class UserService {
         return get(userId);
     }
 
-    /**
-     * Disables or re-enables an account.
-     */
     @Transactional
     public UserResponse setEnabled(Long userId, boolean enabled, Long actingUserId) {
         if (userId.equals(actingUserId)) {
@@ -197,7 +190,6 @@ public class UserService {
         return get(userId);
     }
 
-    /** Clears a lockout without waiting for it to expire. */
     @Transactional
     public UserResponse unlock(Long userId) {
         User user = userRepository.findById(userId)
@@ -210,7 +202,6 @@ public class UserService {
         return get(userId);
     }
 
-    /** Administrative password reset; revokes every session for the target user. */
     @Transactional
     public void resetPassword(Long userId, String newPassword) {
         User user = userRepository.findById(userId)

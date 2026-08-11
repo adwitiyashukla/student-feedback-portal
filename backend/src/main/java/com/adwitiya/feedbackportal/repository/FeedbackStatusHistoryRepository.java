@@ -9,7 +9,6 @@ import java.util.List;
 
 @Repository
 public interface FeedbackStatusHistoryRepository extends JpaRepository<FeedbackStatusHistory, Long> {
-
     @EntityGraph(attributePaths = {"changedBy"})
     List<FeedbackStatusHistory> findByFeedbackIdOrderByChangedAtAsc(Long feedbackId);
 }

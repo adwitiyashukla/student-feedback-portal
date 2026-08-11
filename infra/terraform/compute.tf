@@ -1,15 +1,7 @@
-# =====================================================================
-#  ALB, ECS cluster, task definitions and services
-# =====================================================================
-
 locals {
   backend_image   = var.backend_image != "" ? var.backend_image : "${aws_ecr_repository.backend.repository_url}:latest"
   analytics_image = var.analytics_image != "" ? var.analytics_image : "${aws_ecr_repository.analytics.repository_url}:latest"
 }
-
-# ---------------------------------------------------------------------
-# Load balancer
-# ---------------------------------------------------------------------
 
 resource "aws_lb" "main" {
   name               = "${local.name}-alb"
@@ -42,7 +34,6 @@ resource "aws_lb_target_group" "backend" {
     unhealthy_threshold = 3
   }
 
-  # Give in-flight requests time to finish during a rolling deploy.
   deregistration_delay = 30
 
   stickiness {
@@ -52,7 +43,6 @@ resource "aws_lb_target_group" "backend" {
   }
 }
 
-# Port 80 exists only to redirect. Nothing is served over plain HTTP.
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
@@ -69,26 +59,6 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# Requires an ACM certificate. Left commented so `terraform plan` works
-# before a domain exists; uncomment once var.certificate_arn is supplied.
-#
-# resource "aws_lb_listener" "https" {
-#   load_balancer_arn = aws_lb.main.arn
-#   port              = 443
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-#   certificate_arn   = var.certificate_arn
-#
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.backend.arn
-#   }
-# }
-
-# ---------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------
-
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/ecs/${local.name}/backend"
   retention_in_days = var.log_retention_days
@@ -98,10 +68,6 @@ resource "aws_cloudwatch_log_group" "analytics" {
   name              = "/ecs/${local.name}/analytics"
   retention_in_days = var.log_retention_days
 }
-
-# ---------------------------------------------------------------------
-# Cluster
-# ---------------------------------------------------------------------
 
 resource "aws_ecs_cluster" "main" {
   name = "${local.name}-cluster"
@@ -136,10 +102,6 @@ resource "aws_service_discovery_service" "analytics" {
     failure_threshold = 1
   }
 }
-
-# ---------------------------------------------------------------------
-# Analytics task and service
-# ---------------------------------------------------------------------
 
 resource "aws_ecs_task_definition" "analytics" {
   family                   = "${local.name}-analytics"
@@ -213,10 +175,6 @@ resource "aws_ecs_service" "analytics" {
   }
 }
 
-# ---------------------------------------------------------------------
-# Backend task and service
-# ---------------------------------------------------------------------
-
 resource "aws_ecs_task_definition" "backend" {
   family                   = "${local.name}-backend"
   requires_compatibilities = ["FARGATE"]
@@ -283,8 +241,6 @@ resource "aws_ecs_service" "backend" {
   desired_count   = var.backend_desired_count
   launch_type     = "FARGATE"
 
-  # Flyway runs on startup, so the first task needs time before the ALB
-  # starts failing it.
   health_check_grace_period_seconds = 180
 
   network_configuration {
@@ -306,10 +262,6 @@ resource "aws_ecs_service" "backend" {
 
   depends_on = [aws_lb_listener.http, aws_ecs_service.analytics]
 }
-
-# ---------------------------------------------------------------------
-# Autoscaling on CPU
-# ---------------------------------------------------------------------
 
 resource "aws_appautoscaling_target" "backend" {
   service_namespace  = "ecs"

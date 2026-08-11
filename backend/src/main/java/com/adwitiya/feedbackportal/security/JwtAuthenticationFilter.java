@@ -20,18 +20,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Optional;
 
-/**
- * Authenticates {@code /api/**} requests from a bearer token.
- *
- * <p>A malformed or expired token is not an error here - the filter simply
- * leaves the context empty and lets the authorisation rules decide, so public
- * endpoints keep working for unauthenticated callers.</p>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -42,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-
         Optional<String> token = extractBearerToken(request);
         if (token.isEmpty() || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
@@ -68,7 +59,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
         } catch (UsernameNotFoundException ex) {
-            // Valid signature but the account has since been deleted.
             log.debug("Token subject no longer exists: {}", claims.getSubject());
         }
     }
@@ -82,7 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 
-    /** The filter is only meaningful for the stateless API chain. */
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/api/");

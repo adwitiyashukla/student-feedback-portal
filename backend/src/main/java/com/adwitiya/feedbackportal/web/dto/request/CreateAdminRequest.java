@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Creates an administrator account. Super-administrator only. */
 public record CreateAdminRequest(
 
         @NotBlank @Email @Size(max = 160)

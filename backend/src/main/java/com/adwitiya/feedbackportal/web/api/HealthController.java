@@ -12,18 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Lightweight liveness probe.
- *
- * <p>Separate from Actuator so container orchestrators can poll an endpoint
- * that does not require the management port or authentication.</p>
- */
 @Tag(name = "Health", description = "Service health")
 @RestController
 @RequestMapping("/api/v1/health")
 @RequiredArgsConstructor
 public class HealthController {
-
     private final AnalyticsClient analyticsClient;
 
     @Operation(summary = "Liveness probe", security = @SecurityRequirement(name = ""))

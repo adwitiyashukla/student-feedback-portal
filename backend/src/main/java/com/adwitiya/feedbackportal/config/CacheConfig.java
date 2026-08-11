@@ -15,28 +15,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 import java.util.Map;
 
-/**
- * Redis-backed caches with per-cache time-to-live.
- *
- * <p>Dashboard aggregates are the expensive reads in this application; caching
- * them for a minute removes almost all of the analytical query load without
- * making the numbers meaningfully stale.</p>
- */
 @Configuration
 @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis", matchIfMissing = true)
 public class CacheConfig {
-
     public static final String CACHE_DASHBOARD = "dashboardStats";
     public static final String CACHE_DEPARTMENTS = "departments";
     public static final String CACHE_TRENDS = "feedbackTrends";
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        // EVERYTHING, not NON_FINAL. Every DTO cached here is a record, and
-        // records are final, so NON_FINAL writes no type id for them. A cached
-        // List<DepartmentResponse> then round-trips as a list of untyped
-        // objects and Jackson fails on read with "expected VALUE_STRING: need
-        // ... type id". The type id has to be written for final types too.
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .activateDefaultTyping(

@@ -16,16 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
-/**
- * Ticket numbering.
- *
- * <p>Replaces {@code new Random().nextInt(90000) + 10000} evaluated in the
- * student's browser and posted as a form field.</p>
- */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TicketNumberService")
 class TicketNumberServiceTest {
-
     @Mock
     private FeedbackRepository feedbackRepository;
 
@@ -53,7 +46,7 @@ class TicketNumberServiceTest {
     @Test
     void skipsPastACollision() {
         given(feedbackRepository.findMaxTicketSequenceForYear(anyString())).willReturn(Optional.of(10L));
-        // Two concurrent submissions agreed on MAX = 10; 11 is already taken.
+
         given(feedbackRepository.existsByTicketNumber(anyString()))
                 .willReturn(true)
                 .willReturn(false);

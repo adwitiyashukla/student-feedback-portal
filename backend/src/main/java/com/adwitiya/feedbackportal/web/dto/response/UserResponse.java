@@ -4,7 +4,6 @@ import com.adwitiya.feedbackportal.domain.enums.Role;
 
 import java.time.Instant;
 
-/** Public view of an account. The password hash is never part of any response. */
 public record UserResponse(
         Long id,
         String email,

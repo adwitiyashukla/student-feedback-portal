@@ -4,7 +4,6 @@ import com.adwitiya.feedbackportal.domain.enums.FeedbackStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Staff-only workflow transition. Validated against the state machine. */
 public record UpdateFeedbackStatusRequest(
 
         @NotNull(message = "Target status is required")

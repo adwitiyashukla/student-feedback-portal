@@ -1,4 +1,3 @@
-"""HTTP endpoints for the analytics service."""
 
 from __future__ import annotations
 
@@ -28,10 +27,6 @@ router = APIRouter(prefix="/api/v1")
 
 @router.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health() -> HealthResponse:
-    """Liveness and model-readiness probe.
-
-    Deliberately unauthenticated so container orchestrators can poll it.
-    """
     settings = get_settings()
     return HealthResponse(
         status="UP",
@@ -49,7 +44,6 @@ async def health() -> HealthResponse:
     dependencies=[Depends(require_api_key)],
 )
 async def model_info() -> ModelInfoResponse:
-    """Describe the loaded classifier."""
     if not classifier.is_loaded:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -72,14 +66,6 @@ async def model_info() -> ModelInfoResponse:
     summary="Classify one piece of feedback",
 )
 async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
-    """Score sentiment, predict a category and infer a priority.
-
-    Args:
-        request: Title and body of the feedback.
-
-    Returns:
-        The combined assessment.
-    """
     return _analyze_one(request)
 
 
@@ -91,7 +77,6 @@ async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
     summary="Classify up to 200 items in one call",
 )
 async def analyze_batch(request: BatchAnalyzeRequest) -> BatchAnalyzeResponse:
-    """Backfill endpoint, used to enrich historical feedback in bulk."""
     results = [_analyze_one(item) for item in request.items]
     return BatchAnalyzeResponse(results=results, processed=len(results))
 
@@ -103,11 +88,6 @@ async def analyze_batch(request: BatchAnalyzeRequest) -> BatchAnalyzeResponse:
     summary="Refit the classifier and persist it",
 )
 async def retrain() -> dict[str, object]:
-    """Retrain from the current corpus.
-
-    Synchronous on purpose: training takes a few seconds and the caller is an
-    operator, not a user request.
-    """
     accuracy = classifier.train()
     return {
         "status": "retrained",
@@ -118,7 +98,6 @@ async def retrain() -> dict[str, object]:
 
 
 def _analyze_one(request: AnalyzeRequest) -> AnalyzeResponse:
-    """Run the full pipeline over a single document."""
     text = request.combined[: get_settings().max_text_length]
 
     sentiment = analyze_sentiment(text)

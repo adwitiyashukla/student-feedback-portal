@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Authentication API")
 class AuthApiIT extends AbstractIntegrationTest {
-
     private static final String STUDENT_EMAIL = "aarav.sharma1@student.university.edu";
     private static final String ADMIN_EMAIL = "priya.menon@university.edu";
     private static final String PASSWORD = "Password#123";
@@ -29,7 +28,7 @@ class AuthApiIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
                 .andExpect(jsonPath("$.user.email").value(ADMIN_EMAIL))
                 .andExpect(jsonPath("$.user.role").value("ADMIN"))
-                // The hash must never appear in a response body.
+
                 .andExpect(jsonPath("$.user.passwordHash").doesNotExist());
     }
 
@@ -93,7 +92,6 @@ class AuthApiIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken", notNullValue()));
 
-        // Presenting the same token again must fail: it was revoked on use.
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .contentType("application/json")
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}"))

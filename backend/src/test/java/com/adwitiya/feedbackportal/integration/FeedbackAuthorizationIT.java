@@ -16,22 +16,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * The authorisation guarantees the system is required to provide: a caller can
- * reach their own data and nothing else, and cannot widen that by editing a
- * URL, an id or a filter parameter.
- */
 @DisplayName("Feedback authorisation")
 class FeedbackAuthorizationIT extends AbstractIntegrationTest {
-
     private static final String PASSWORD = "Password#123";
     private static final String STUDENT_A = "aarav.sharma1@student.university.edu";
     private static final String STUDENT_B = "ananya.joshi2@student.university.edu";
     private static final String ADMIN = "priya.menon@university.edu";
 
-    /** V2 seeds departments in a fixed order; CSE is first and is Priya Menon's. */
     private static final long CSE_DEPARTMENT_ID = 1L;
-    /** HOSTEL - deliberately not the admin's department, used for the escalation test. */
+
     private static final long HOSTEL_DEPARTMENT_ID = 6L;
 
     private String tokenFor(String email) throws Exception {
@@ -79,24 +72,11 @@ class FeedbackAuthorizationIT extends AbstractIntegrationTest {
     void studentsCannotReadEachOthersFeedback() throws Exception {
         long feedbackId = submitFeedbackAs(tokenFor(STUDENT_A));
 
-        // 404, not 403: the existence of the id is itself not disclosed.
         mockMvc.perform(get("/api/v1/feedback/{id}", feedbackId)
                         .header("Authorization", tokenFor(STUDENT_B)))
                 .andExpect(status().isNotFound());
     }
 
-    /**
-     * Asserts on ids, not on {@code submittedByName}.
-     *
-     * <p>The earlier version required every row to read "Aarav Sharma" and
-     * failed against the seed data, which contains an anonymous ticket of his:
-     * {@code FeedbackMapper.toSummary} masks the submitter of an anonymous
-     * ticket to "Anonymous student" for every caller, the owner included. A
-     * deliberately maskable display field cannot stand in for ownership.
-     *
-     * <p>Submitting as the other student and asserting that ticket's absence
-     * also tests the leak directly rather than inferring it from a name.</p>
-     */
     @Test
     @DisplayName("a student's list is scoped to their own submissions")
     void listIsScopedToTheCaller() throws Exception {
@@ -108,9 +88,9 @@ class FeedbackAuthorizationIT extends AbstractIntegrationTest {
                         .param("size", "100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", notNullValue()))
-                // The caller's own ticket is there...
+
                 .andExpect(jsonPath("$.content[?(@.id == %d)]".formatted(mine)).isNotEmpty())
-                // ...and the other student's is not.
+
                 .andExpect(jsonPath("$.content[?(@.id == %d)]".formatted(theirs)).isEmpty());
     }
 
@@ -145,7 +125,6 @@ class FeedbackAuthorizationIT extends AbstractIntegrationTest {
         String adminToken = tokenFor(ADMIN);
         long feedbackId = submitFeedbackAs(studentToken);
 
-        // OPEN -> CLOSED is not in the state machine.
         mockMvc.perform(patch("/api/v1/feedback/{id}/status", feedbackId)
                         .header("Authorization", adminToken)
                         .contentType("application/json")

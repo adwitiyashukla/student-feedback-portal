@@ -11,12 +11,8 @@ import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Brute-force protection.
- */
 @DisplayName("User account lockout")
 class UserLockoutTest {
-
     private static final long LOCK_SECONDS = 900;
 
     private User user;

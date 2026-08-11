@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Profile fields a user or administrator may edit. Email and role are not editable here. */
 public record UpdateUserRequest(
 
         @NotBlank @Size(max = 120)

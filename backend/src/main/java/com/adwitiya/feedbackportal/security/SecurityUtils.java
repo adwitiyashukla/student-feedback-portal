@@ -5,12 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-/**
- * Read-only helpers for reaching the current principal outside a controller
- * method signature.
- */
 public final class SecurityUtils {
-
     private SecurityUtils() {
     }
 
@@ -31,7 +26,6 @@ public final class SecurityUtils {
         return currentUser().map(AppUserDetails::email);
     }
 
-    /** @throws IllegalStateException when called outside an authenticated request */
     public static AppUserDetails requireCurrentUser() {
         return currentUser().orElseThrow(
                 () -> new IllegalStateException("No authenticated principal in the security context"));

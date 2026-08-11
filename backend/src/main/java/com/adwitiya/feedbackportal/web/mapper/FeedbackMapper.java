@@ -13,16 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Entity-to-DTO translation for the feedback aggregate.
- *
- * <p>Hand-written rather than generated: the anonymity rule below is a
- * business decision that belongs in reviewable code, not in a mapping
- * annotation.</p>
- */
 @Component
 public class FeedbackMapper {
-
     private static final String ANONYMOUS_LABEL = "Anonymous student";
     private static final String UNASSIGNED_LABEL = "Unassigned";
 
@@ -43,13 +35,6 @@ public class FeedbackMapper {
                 feedback.getCreatedAt());
     }
 
-    /**
-     * @param feedback     the aggregate root
-     * @param comments     thread already filtered for the caller's visibility
-     * @param history      workflow transitions
-     * @param attachments  uploaded files
-     * @param includeIdentity whether the caller may see an anonymous submitter's name
-     */
     public FeedbackDetailResponse toDetail(Feedback feedback,
                                            List<FeedbackComment> comments,
                                            List<FeedbackStatusHistory> history,

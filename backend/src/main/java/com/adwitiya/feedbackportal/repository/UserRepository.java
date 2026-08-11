@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
     Optional<User> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);
@@ -32,12 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Page<User> search(@Param("role") Role role, @Param("search") String search, Pageable pageable);
 
-    /**
-     * Clears expired lockouts in bulk. Scheduled rather than checked on every
-     * sign-in so a locked-out user is not silently unlocked by a read.
-     *
-     * @return number of accounts unlocked
-     */
     @Modifying
     @Query("""
             UPDATE User u

@@ -9,13 +9,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Full view of one piece of feedback.
- *
- * <p>{@code allowedTransitions} is computed server-side so the UI renders only
- * the buttons the state machine will actually accept, and the API stays the
- * single source of truth for what is legal.</p>
- */
 public record FeedbackDetailResponse(
         Long id,
         String ticketNumber,

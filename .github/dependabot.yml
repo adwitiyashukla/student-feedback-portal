@@ -1,17 +1,5 @@
 version: 2
 
-# Grouped and monthly on purpose.
-#
-# Ungrouped weekly updates opened nineteen pull requests on the first day,
-# which is noise rather than signal on a project this size: each one costs a
-# full CI run and none of them can be reviewed properly in that volume.
-# Grouping collapses each ecosystem into a single pull request, and a low
-# open-PR limit keeps the queue readable.
-#
-# Major versions are ignored deliberately. A Java or Spring Boot major bump
-# is a migration with breaking changes, not a dependency refresh, and should
-# be done as considered work rather than by merging a bot's branch.
-
 updates:
 
   - package-ecosystem: maven
@@ -45,8 +33,6 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 1
-    # The base images are pinned to a JDK/JRE major version the build is
-    # tested against; a major bump is a deliberate upgrade, not a patch.
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]

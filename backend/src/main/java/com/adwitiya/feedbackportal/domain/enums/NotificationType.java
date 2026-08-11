@@ -1,10 +1,6 @@
 package com.adwitiya.feedbackportal.domain.enums;
 
-/**
- * Categories of in-app notification, used for grouping and icon selection.
- */
 public enum NotificationType {
-
     FEEDBACK_SUBMITTED,
     FEEDBACK_ASSIGNED,
     FEEDBACK_COMMENTED,

@@ -13,18 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
-/**
- * Writes the security audit trail.
- *
- * <p>Every write runs in {@link Propagation#REQUIRES_NEW} so a rolled-back
- * business transaction still leaves its audit record behind - a failed attempt
- * is exactly the thing you want recorded.</p>
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuditService {
-
     private final AuditLogRepository auditLogRepository;
 
     @Async
@@ -37,7 +29,6 @@ public class AuditService {
                 null);
     }
 
-    /** Overload for authentication events, where there is no principal yet. */
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordAuthEvent(String action, String email, String ipAddress, String details) {
@@ -58,7 +49,6 @@ public class AuditService {
                     .createdAt(Instant.now())
                     .build());
         } catch (RuntimeException ex) {
-            // Auditing must never break the operation being audited.
             log.error("Failed to write audit record for action {}", action, ex);
         }
     }

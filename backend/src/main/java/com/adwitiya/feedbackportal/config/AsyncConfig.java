@@ -11,18 +11,9 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 
 import java.util.concurrent.Executors;
 
-/**
- * Runs {@code @Async} work on Java 21 virtual threads.
- *
- * <p>The two async paths here - calling the Python analytics service and
- * sending notification mail - are both I/O bound and both must stay off the
- * request thread. Virtual threads make a thread-per-task executor the correct
- * choice rather than a tuned pool.</p>
- */
 @Slf4j
 @Configuration
 public class AsyncConfig implements AsyncConfigurer {
-
     @Bean("applicationTaskExecutor")
     @Override
     public AsyncTaskExecutor getAsyncExecutor() {

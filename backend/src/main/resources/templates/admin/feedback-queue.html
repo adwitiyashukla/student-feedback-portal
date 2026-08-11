@@ -77,10 +77,7 @@
                     </td>
                     <td th:text="${item.title()}">Title</td>
                     <td class="small text-body-secondary" th:text="${item.submittedByName()}">Student</td>
-                    <!-- th:insert, NOT th:replace. The widgets fragments are <span>s;
-                         th:replace would discard these <td>s and leave bare spans as
-                         direct children of <tr>, which the HTML parser then hoists out
-                         above the table, shifting every remaining column left. -->
+
                     <td th:insert="~{fragments/widgets :: statusBadge(${item.status()})}"></td>
                     <td th:insert="~{fragments/widgets :: priorityBadge(${item.priority()})}"></td>
                     <td th:insert="~{fragments/widgets :: sentimentBadge(${item.sentimentLabel()})}"></td>

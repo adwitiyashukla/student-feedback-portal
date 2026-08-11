@@ -59,9 +59,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-body-secondary mb-3">Submitted vs resolved</h2>
-                    <!-- The fixed-height .chart-box wrapper is load-bearing: see app.css.
-                         A bare <canvas height="..."> does not work, because Chart.js
-                         overwrites the attribute as soon as responsive sizing kicks in. -->
+
                     <div class="chart-box">
                         <canvas id="trendChart"></canvas>
                     </div>
@@ -114,8 +112,6 @@
         </div>
     </div>
 
-    <!-- Data is passed through data-* attributes rather than inlined script,
-         so the strict Content-Security-Policy needs no 'unsafe-inline'. -->
     <div id="chart-data"
          th:attr="data-trend=${#strings.listJoin(stats.monthlyTrend().![period + ':' + submitted + ':' + resolved], '|')},
                   data-categories=${#strings.listJoin(stats.byCategory().keySet().![name()], '|')},

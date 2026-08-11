@@ -24,12 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** Server-rendered student area. */
 @Controller
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('STUDENT')")
 public class StudentUiController {
-
     private final FeedbackService feedbackService;
     private final DepartmentService departmentService;
     private final NotificationService notificationService;
@@ -81,7 +79,7 @@ public class StudentUiController {
     public String markNotificationsRead(@AuthenticationPrincipal AppUserDetails principal,
                                         @RequestParam(defaultValue = "/student/dashboard") String returnTo) {
         notificationService.markAllRead(principal.id());
-        // Only ever redirect within the application.
+
         return "redirect:" + (returnTo.startsWith("/") ? returnTo : "/student/dashboard");
     }
 }

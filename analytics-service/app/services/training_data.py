@@ -1,18 +1,3 @@
-"""Labelled training corpus for the category classifier.
-
-The corpus is generated from per-category templates rather than checked in as
-a flat CSV. Two reasons:
-
-* it stays reviewable - a reader can see the vocabulary each label is built
-  from, instead of scrolling a thousand rows;
-* it is reproducible - generation is seeded, so ``train.py`` produces the same
-  model on every machine and the accuracy figure in the README means something.
-
-In a production deployment this module would be replaced by real historical
-tickets exported from the portal. The interface - :func:`build_corpus`
-returning ``(texts, labels)`` - is deliberately the same either way, so
-swapping in real data changes nothing downstream.
-"""
 
 from __future__ import annotations
 
@@ -20,8 +5,7 @@ import random
 
 SEED = 20260725
 
-# Per category: subjects, complaints/observations, and locations or qualifiers.
-# The Cartesian product of these, sampled, is the corpus.
+
 TEMPLATES: dict[str, dict[str, list[str]]] = {
     "ACADEMIC": {
         "subject": [
@@ -202,7 +186,7 @@ TEMPLATES: dict[str, dict[str, list[str]]] = {
     },
 }
 
-# Sentence frames the pieces are assembled into.
+
 FRAMES: list[str] = [
     "{subject} {predicate} {context}.",
     "{subject} {context} {predicate}.",
@@ -214,9 +198,7 @@ FRAMES: list[str] = [
 
 EXAMPLES_PER_CATEGORY = 90
 
-# Filler that appears in real tickets regardless of subject. Mixing it in stops
-# the categories being trivially separable and forces the model to rely on
-# domain vocabulary rather than on frame structure.
+
 NOISE_PHRASES: list[str] = [
     "Hoping for a quick response.", "This has been going on for a while.",
     "Thanks in advance.", "Please look into it at the earliest.",
@@ -225,13 +207,11 @@ NOISE_PHRASES: list[str] = [
     "Sorry if this is the wrong department.", "It would really help if this is fixed.",
 ]
 
-# Character-level corruptions, applied to a fraction of documents to mimic the
-# typos that appear in real submissions.
+
 _TYPO_SWAPS = {"a": "", "e": "", "i": "", "o": "", "t": "tt", "l": "ll", "s": "ss"}
 
 
 def _add_typos(text: str, rng: random.Random) -> str:
-    """Corrupt one word so the character n-gram features have to earn their place."""
     words = text.split()
     if len(words) < 4:
         return text
@@ -247,17 +227,6 @@ def _add_typos(text: str, rng: random.Random) -> str:
 def build_corpus(examples_per_category: int = EXAMPLES_PER_CATEGORY,
                  seed: int = SEED,
                  augment: bool = True) -> tuple[list[str], list[str]]:
-    """Generate the labelled training corpus.
-
-    Args:
-        examples_per_category: How many documents to synthesise per label.
-        seed: RNG seed; fixed by default so training is reproducible.
-        augment: Mix in filler phrases and typos. Disable to inspect the raw
-            templates.
-
-    Returns:
-        A ``(texts, labels)`` pair of equal-length lists.
-    """
     rng = random.Random(seed)
     texts: list[str] = []
     labels: list[str] = []
@@ -272,7 +241,7 @@ def build_corpus(examples_per_category: int = EXAMPLES_PER_CATEGORY,
                 predicate=rng.choice(parts["predicate"]),
                 context=rng.choice(parts["context"]),
             )
-            # Capitalise, and collapse the double space some frames produce.
+
             sentence = " ".join(sentence.split())
             sentence = sentence[0].upper() + sentence[1:]
 
@@ -291,14 +260,6 @@ def build_corpus(examples_per_category: int = EXAMPLES_PER_CATEGORY,
 
     return texts, labels
 
-
-# --------------------------------------------------------------------------
-# Held-out evaluation set.
-#
-# Hand-written, phrased the way students actually write, and never used for
-# training. Cross-validated accuracy on a template-generated corpus flatters
-# the model; this is the number worth quoting.
-# --------------------------------------------------------------------------
 
 EVALUATION_SET: list[tuple[str, str]] = [
     ("The dinner in the mess was undercooked again and three of us fell ill", "HOSTEL"),
@@ -333,14 +294,8 @@ EVALUATION_SET: list[tuple[str, str]] = [
 
 
 def evaluation_set() -> tuple[list[str], list[str]]:
-    """Hand-written held-out documents.
-
-    Returns:
-        A ``(texts, labels)`` pair, disjoint from :func:`build_corpus`.
-    """
     return [text for text, _ in EVALUATION_SET], [label for _, label in EVALUATION_SET]
 
 
 def category_names() -> list[str]:
-    """Labels the classifier is trained to predict."""
     return sorted(TEMPLATES.keys())

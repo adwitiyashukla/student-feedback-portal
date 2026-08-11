@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
-
     @EntityGraph(attributePaths = {"user", "department"})
     Optional<Admin> findByUserId(Long userId);
 
@@ -29,12 +28,6 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     @EntityGraph(attributePaths = {"user", "department"})
     Page<Admin> findAllBy(Pageable pageable);
 
-    /**
-     * Least-loaded administrator in a department, used for round-robin
-     * auto-assignment of new feedback.
-     *
-     * @return administrator user ids ordered by open workload ascending
-     */
     @Query("""
             SELECT a.userId FROM Admin a
              WHERE a.department.id = :departmentId AND a.user.enabled = true

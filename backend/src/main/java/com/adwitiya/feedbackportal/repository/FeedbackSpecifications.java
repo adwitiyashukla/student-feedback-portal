@@ -10,20 +10,10 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.Instant;
 import java.util.Collection;
 
-/**
- * Composable Criteria API predicates for the feedback list endpoints.
- *
- * <p>Every filter is a separate {@link Specification} combined with
- * {@code and(...)}, so the generated SQL contains only the filters the caller
- * actually supplied - and every value is a bound parameter, never string
- * concatenation.</p>
- */
 public final class FeedbackSpecifications {
-
     private FeedbackSpecifications() {
     }
 
-    /** Neutral element: matches everything, safe to start an {@code and} chain with. */
     public static Specification<Feedback> all() {
         return (root, query, cb) -> cb.conjunction();
     }
@@ -83,7 +73,6 @@ public final class FeedbackSpecifications {
         };
     }
 
-    /** Case-insensitive contains-match across ticket number, title and description. */
     public static Specification<Feedback> textContains(String term) {
         if (term == null || term.isBlank()) {
             return all();
@@ -97,7 +86,6 @@ public final class FeedbackSpecifications {
         };
     }
 
-    /** Active tickets whose SLA deadline has already passed. */
     public static Specification<Feedback> overdue(boolean onlyOverdue) {
         if (!onlyOverdue) {
             return all();

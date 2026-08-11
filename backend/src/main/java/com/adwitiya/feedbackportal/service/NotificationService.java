@@ -20,18 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * In-app notifications, with an email copy for the events students care about.
- *
- * <p>Mail is sent asynchronously and failures are logged rather than
- * propagated: an unreachable SMTP server must not roll back a status change
- * that has already been agreed with the student.</p>
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-
     private final NotificationRepository notificationRepository;
     private final JavaMailSender mailSender;
     private final AppProperties appProperties;
@@ -48,7 +40,6 @@ public class NotificationService {
                 .build());
     }
 
-    /** In-app notification plus an email, used for status changes and replies. */
     @Transactional
     public void notifyAboutFeedback(User recipient, Feedback feedback, NotificationType type,
                                     String title, String message) {

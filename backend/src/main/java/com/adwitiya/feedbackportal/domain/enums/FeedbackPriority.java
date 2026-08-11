@@ -2,11 +2,7 @@ package com.adwitiya.feedbackportal.domain.enums;
 
 import java.time.Duration;
 
-/**
- * Urgency of a piece of feedback, and the resolution SLA attached to it.
- */
 public enum FeedbackPriority {
-
     LOW(Duration.ofDays(14), 1),
     MEDIUM(Duration.ofDays(7), 2),
     HIGH(Duration.ofDays(3), 3),
@@ -20,12 +16,10 @@ public enum FeedbackPriority {
         this.weight = weight;
     }
 
-    /** How long the institution has to resolve feedback at this priority. */
     public Duration getResolutionSla() {
         return resolutionSla;
     }
 
-    /** Ordinal-independent ranking, safe to persist and compare. */
     public int getWeight() {
         return weight;
     }

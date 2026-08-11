@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
-
     List<Attachment> findByFeedbackId(Long feedbackId);
 
     long countByFeedbackId(Long feedbackId);

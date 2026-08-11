@@ -17,21 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/** Aggregate statistics for the dashboards. */
 @Tag(name = "Dashboard", description = "Aggregated feedback statistics")
 @RestController
 @RequestMapping("/api/v1/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
-
     private final DashboardService dashboardService;
     private final FeedbackService feedbackService;
 
-    /**
-     * A department administrator always sees their own department; only a
-     * super-administrator may pass {@code departmentId}, and that is enforced
-     * here rather than trusted from the query string.
-     */
     @Operation(summary = "Institution or department statistics")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @GetMapping("/admin")

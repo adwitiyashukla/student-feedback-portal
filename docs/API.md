@@ -1,6 +1,6 @@
 # API reference
 
-Base URL `http://localhost:8080` · all paths under `/api/v1`
+Base URL `http://localhost:8080` - all paths under `/api/v1`
 
 Interactive documentation is served at [`/swagger-ui.html`](http://localhost:8080/swagger-ui.html);
 the machine-readable schema is at `/v3/api-docs`. This page is the narrative version.
@@ -81,9 +81,9 @@ GET /api/v1/feedback?status=OPEN&category=HOSTEL&overdue=true&page=0&size=20&sor
 
 | Parameter | Type | Notes |
 |---|---|---|
-| `status` | enum | `OPEN` · `IN_PROGRESS` · `AWAITING_STUDENT` · `RESOLVED` · `CLOSED` · `REJECTED` |
+| `status` | enum | `OPEN` - `IN_PROGRESS` - `AWAITING_STUDENT` - `RESOLVED` - `CLOSED` - `REJECTED` |
 | `category` | enum | 10 values, see `/departments` and the OpenAPI schema |
-| `priority` | enum | `LOW` · `MEDIUM` · `HIGH` · `URGENT` |
+| `priority` | enum | `LOW` - `MEDIUM` - `HIGH` - `URGENT` |
 | `departmentId` | long | **Honoured for `SUPER_ADMIN` only** |
 | `assignedToId` | long | Filter by assignee |
 | `search` | string | Contains-match on ticket number, title, description |
@@ -97,7 +97,7 @@ own rows.
 
 ```json
 {
-  "content": [ { "id": 42, "ticketNumber": "FB-2026-000042", "title": "…",
+  "content": [ { "id": 42, "ticketNumber": "FB-2026-000042", "title": "...",
                  "status": "IN_PROGRESS", "priority": "HIGH", "sentimentLabel": "NEGATIVE",
                  "overdue": false, "dueAt": "2026-07-28T09:00:00Z" } ],
   "page": 0, "size": 20, "totalElements": 46, "totalPages": 3,
@@ -140,7 +140,7 @@ curl -s -X PATCH http://localhost:8080/api/v1/feedback/42/status \
   -d '{"status":"RESOLVED","note":"Replaced the switch; verified with the lab staff."}'
 ```
 
-An illegal transition - `OPEN → CLOSED`, say - returns:
+An illegal transition - `OPEN -> CLOSED`, say - returns:
 
 ```json
 { "type": "https://feedback-portal/errors/business-rule",
@@ -158,7 +158,7 @@ An illegal transition - `OPEN → CLOSED`, say - returns:
 | `POST` | `/users/students` | staff |
 | `GET` / `POST` | `/users/admins` | `SUPER_ADMIN` |
 | `GET` | `/users/admins/by-department/{id}` | staff |
-| `PATCH` | `/users/{id}/enabled` · `/unlock` | `SUPER_ADMIN` |
+| `PATCH` | `/users/{id}/enabled` - `/unlock` | `SUPER_ADMIN` |
 | `GET` | `/departments` | any |
 | `POST` | `/departments`, `PATCH /{id}/active` | `SUPER_ADMIN` |
 | `GET` | `/dashboard/admin`, `/dashboard/admin/trend` | staff |

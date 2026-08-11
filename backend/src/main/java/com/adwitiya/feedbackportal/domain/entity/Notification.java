@@ -24,15 +24,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * An in-app notification delivered to a single user.
- */
-/*
- * @CreatedDate is inert without an AuditingEntityListener. Sibling entities
- * inherit the listener from BaseEntity; this one cannot, because its table has
- * no updated_at column. Registering the listener directly is what actually
- * populates created_at - without it the insert fails on a NOT NULL column.
- */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "notifications")
@@ -42,7 +33,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,7 +51,6 @@ public class Notification {
     @Column(nullable = false, length = 500)
     private String message;
 
-    /** Relative URL the notification points at, e.g. {@code /feedback/42}. */
     @Column(length = 255)
     private String link;
 

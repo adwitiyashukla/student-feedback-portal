@@ -15,21 +15,15 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Returns RFC 7807 JSON for unauthenticated API calls instead of redirecting
- * to a login page, which is what the default entry point would do.
- */
 @Component
 @RequiredArgsConstructor
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
     private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), Map.of(

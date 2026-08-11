@@ -19,14 +19,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * A single identity for everyone who can sign in.
- *
- * <p>{@code passwordHash} holds a BCrypt digest. The column is 100 characters
- * because a BCrypt hash is 60 and the extra room lets the encoder be upgraded
- * (Spring Security's {@code DelegatingPasswordEncoder} prefixes the algorithm)
- * without another migration.</p>
- */
 @Entity
 @Table(name = "users")
 @Getter
@@ -35,8 +27,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User extends BaseEntity {
-
-    /** Consecutive failed sign-ins before the account is temporarily locked. */
     public static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
 
     @Id
@@ -81,11 +71,6 @@ public class User extends BaseEntity {
     @Builder.Default
     private Long version = 0L;
 
-    /**
-     * Records a failed sign-in, locking the account once the threshold is hit.
-     *
-     * @param lockDurationSeconds how long the resulting lock should last
-     */
     public void registerFailedLogin(long lockDurationSeconds) {
         this.failedLoginAttempts++;
         if (this.failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
@@ -94,7 +79,6 @@ public class User extends BaseEntity {
         }
     }
 
-    /** Clears the failure counter and stamps the sign-in time. */
     public void registerSuccessfulLogin() {
         this.failedLoginAttempts = 0;
         this.accountLocked = false;
@@ -102,9 +86,6 @@ public class User extends BaseEntity {
         this.lastLoginAt = Instant.now();
     }
 
-    /**
-     * @return {@code true} when the account is locked and the lock has not yet expired
-     */
     public boolean isCurrentlyLocked() {
         if (!accountLocked) {
             return false;

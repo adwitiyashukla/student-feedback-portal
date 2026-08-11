@@ -18,13 +18,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * A server-side record of an issued refresh token.
- *
- * <p>Only the SHA-256 hash of the token is stored. A database leak therefore
- * does not hand an attacker usable refresh tokens, and revocation works by
- * flipping {@code revoked} rather than hoping a stateless JWT expires soon.</p>
- */
 @Entity
 @Table(name = "refresh_tokens")
 @Getter
@@ -33,7 +26,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RefreshToken {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,7 +57,6 @@ public class RefreshToken {
         return Instant.now().isAfter(expiresAt);
     }
 
-    /** Usable only if it is neither revoked nor past its expiry. */
     public boolean isUsable() {
         return !revoked && !isExpired();
     }

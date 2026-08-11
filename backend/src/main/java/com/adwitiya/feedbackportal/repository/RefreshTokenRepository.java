@@ -12,10 +12,8 @@ import java.util.Optional;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 
-    /** Revokes every live session for a user - used on sign-out and password change. */
     @Modifying
     @Query("UPDATE RefreshToken t SET t.revoked = true WHERE t.user.id = :userId AND t.revoked = false")
     int revokeAllForUser(@Param("userId") Long userId);

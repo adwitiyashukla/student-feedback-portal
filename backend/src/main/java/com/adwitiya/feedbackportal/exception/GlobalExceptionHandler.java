@@ -30,28 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Translates every exception the API can throw into an RFC 7807
- * {@code application/problem+json} response.
- *
- * <p>Two properties matter here. First, the shape is uniform, so clients parse
- * one error format. Second, internal detail never leaks: unexpected exceptions
- * are logged with a generated correlation id and the caller receives that id
- * and nothing else.</p>
- *
- * <p>Scoped to {@code web.api} on purpose. Unscoped, this advice also caught
- * failures from the Thymeleaf controllers in {@code web.ui} and answered a
- * browser navigation with a wall of raw JSON. UI errors are left to Spring
- * Boot's error handling, which resolves {@code templates/error/4xx.html} and
- * {@code templates/error/5xx.html} - Boot looks up {@code error/<status>},
- * then {@code error/<series>xx}, then a root-level {@code error}. A file at
- * {@code templates/error/error.html} matches none of those and left Tomcat's
- * stock white-on-grey page to leak through.</p>
- */
 @Slf4j
 @RestControllerAdvice(basePackages = "com.adwitiya.feedbackportal.web.api")
 public class GlobalExceptionHandler {
-
     private static final String BASE_TYPE = "https://feedback-portal/errors/";
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -74,7 +55,6 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.UNPROCESSABLE_ENTITY, "Unprocessable", ex.getMessage(), "invalid-state", request);
     }
 
-    /** Field-level bean validation failures, returned as a field-to-message map. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
@@ -113,7 +93,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BadCredentialsException.class})
     public ProblemDetail handleBadCredentials(HttpServletRequest request) {
-        // Deliberately identical whether the account exists or not.
         return problem(HttpStatus.UNAUTHORIZED, "Unauthenticated",
                 "Invalid email or password.", "bad-credentials", request);
     }
@@ -165,12 +144,6 @@ public class GlobalExceptionHandler {
                 "The file store is temporarily unavailable. Please retry.", "storage", request);
     }
 
-    /**
-     * A path with no handler and a path with no static file are the same thing
-     * to a caller: a 404. {@code NoResourceFoundException} is included so that
-     * routine browser requests for {@code /favicon.ico} do not fall through to
-     * the last-resort handler and fill the log with ERROR-level stack traces.
-     */
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ProblemDetail handleNoHandler(HttpServletRequest request) {
         return problem(HttpStatus.NOT_FOUND, "Not Found", "No endpoint matches this path.", "not-found", request);
@@ -183,10 +156,6 @@ public class GlobalExceptionHandler {
                 "method-not-allowed", request);
     }
 
-    /**
-     * Last-resort handler. The correlation id is the only thing shared with
-     * the caller; the stack trace stays in the log.
-     */
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex, HttpServletRequest request) {
         String correlationId = UUID.randomUUID().toString();

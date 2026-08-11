@@ -16,11 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Department reference data. Read-heavy and rarely written, so it is cached. */
 @Service
 @RequiredArgsConstructor
 public class DepartmentService {
-
     private final DepartmentRepository departmentRepository;
     private final UserMapper mapper;
 

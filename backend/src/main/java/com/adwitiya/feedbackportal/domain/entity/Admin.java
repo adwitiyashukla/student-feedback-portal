@@ -17,13 +17,6 @@ import lombok.Setter;
 
 import java.util.Objects;
 
-/**
- * Administrator profile, sharing its primary key with {@link User}.
- *
- * <p>The owning department is what makes routing possible: feedback filed
- * against a department is visible to that department's administrators and to
- * nobody else.</p>
- */
 @Entity
 @Table(name = "admins")
 @Getter
@@ -32,7 +25,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Admin {
-
     @Id
     @Column(name = "user_id")
     private Long userId;

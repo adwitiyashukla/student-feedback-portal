@@ -1,8 +1,3 @@
--- =====================================================================
--- V2 : Reference data - departments feedback can be routed to.
--- Idempotent so it is safe on a partially-populated database.
--- =====================================================================
-
 INSERT INTO departments (code, name, description, active, created_at, updated_at)
 VALUES
     ('CSE',       'Computer Science & Engineering', 'Courses, labs and faculty for CSE',        TRUE, NOW(6), NOW(6)),

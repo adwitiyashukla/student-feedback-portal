@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Feedback aggregate")
 class FeedbackEntityTest {
-
     private Feedback feedback;
     private User actor;
 
@@ -51,7 +50,6 @@ class FeedbackEntityTest {
     @Nested
     @DisplayName("transitionTo")
     class Transitions {
-
         @Test
         void appliesALegalTransitionAndRecordsHistory() {
             feedback.transitionTo(FeedbackStatus.IN_PROGRESS, actor, "Picked up");
@@ -106,7 +104,6 @@ class FeedbackEntityTest {
     @Nested
     @DisplayName("SLA")
     class Sla {
-
         @Test
         void dueDateDerivesFromPriority() {
             feedback.setPriority(FeedbackPriority.URGENT);
@@ -153,7 +150,6 @@ class FeedbackEntityTest {
     @Nested
     @DisplayName("priority ranking")
     class Ranking {
-
         @Test
         void weightsAreOrdered() {
             assertThat(FeedbackPriority.URGENT.isAtLeast(FeedbackPriority.HIGH)).isTrue();

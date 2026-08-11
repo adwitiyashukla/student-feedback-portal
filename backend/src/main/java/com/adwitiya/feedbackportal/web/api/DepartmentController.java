@@ -20,13 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** Department reference data. */
 @Tag(name = "Departments", description = "Routing destinations for feedback")
 @RestController
 @RequestMapping("/api/v1/departments")
 @RequiredArgsConstructor
 public class DepartmentController {
-
     private final DepartmentService departmentService;
 
     @Operation(summary = "List active departments")

@@ -1,21 +1,7 @@
-# =====================================================================
-#  Student Feedback Portal - full local stack
-#
-#      cp .env.example .env && docker compose up --build
-#
-#  Brings up MySQL, Redis, MailHog, the Python analytics service, the
-#  Spring Boot backend, Prometheus and Grafana. Every service declares a
-#  healthcheck and the dependency graph waits on those healthchecks, so
-#  `up` either reaches a working system or fails visibly.
-# =====================================================================
-
 name: student-feedback-portal
 
 services:
 
-  # -------------------------------------------------------------------
-  #  MySQL 8.4 - the same engine the integration tests run against
-  # -------------------------------------------------------------------
   mysql:
     image: mysql:8.4
     container_name: sfp-mysql
@@ -32,7 +18,6 @@ services:
       - --max_connections=200
     ports:
       - "${MYSQL_PORT:-3306}:3306"
-    # Capped so the whole stack fits inside a 4 GB WSL 2 VM.
     mem_limit: 900m
     volumes:
       - mysql-data:/var/lib/mysql
@@ -44,9 +29,6 @@ services:
       start_period: 40s
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  Redis - response cache and rate-limit counters
-  # -------------------------------------------------------------------
   redis:
     image: redis:7.4-alpine
     container_name: sfp-redis
@@ -64,21 +46,15 @@ services:
       retries: 5
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  MailHog - captures outbound notification mail, UI on :8025
-  # -------------------------------------------------------------------
   mailhog:
     image: mailhog/mailhog:v1.0.1
     container_name: sfp-mailhog
     restart: unless-stopped
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # web UI
+      - "1025:1025"
+      - "8025:8025"
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  Analytics - FastAPI sentiment and category classification
-  # -------------------------------------------------------------------
   analytics:
     build:
       context: ./analytics-service
@@ -100,9 +76,6 @@ services:
       start_period: 20s
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  Backend - Spring Boot API and server-rendered UI
-  # -------------------------------------------------------------------
   backend:
     build:
       context: ./backend
@@ -128,7 +101,6 @@ services:
       MAIL_FROM: ${MAIL_FROM:-no-reply@university.edu}
       ANALYTICS_BASE_URL: http://analytics:8000
       ANALYTICS_API_KEY: ${ANALYTICS_API_KEY:-local-dev-analytics-key}
-      # Generate with: openssl rand -base64 64
       JWT_SECRET: "${JWT_SECRET:?JWT_SECRET is required - see .env.example}"
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@university.edu}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?set BOOTSTRAP_ADMIN_PASSWORD in .env}
@@ -137,9 +109,6 @@ services:
       APP_BASE_URL: http://localhost:${BACKEND_PORT:-8080}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
-    # The JVM sizes its heap from the CONTAINER limit, not the host. Without
-    # this cap, MaxRAMPercentage=75 would claim 3 GB of a 4 GB VM and starve
-    # MySQL. 1400m gives the JVM roughly a 1 GB max heap, which is ample here.
     mem_limit: 1400m
     volumes:
       - uploads:/app/uploads
@@ -151,9 +120,6 @@ services:
       start_period: 90s
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  Prometheus - scrapes the backend's Micrometer endpoint
-  # -------------------------------------------------------------------
   prometheus:
     image: prom/prometheus:v3.0.1
     container_name: sfp-prometheus
@@ -170,9 +136,6 @@ services:
       - prometheus-data:/prometheus
     networks: [sfp-net]
 
-  # -------------------------------------------------------------------
-  #  Grafana - dashboards, provisioned from source control
-  # -------------------------------------------------------------------
   grafana:
     image: grafana/grafana:11.4.0
     container_name: sfp-grafana

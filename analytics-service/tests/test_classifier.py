@@ -1,4 +1,3 @@
-"""Tests for the TF-IDF category classifier."""
 
 from __future__ import annotations
 
@@ -8,7 +7,7 @@ from app.models.schemas import Category
 from app.services.classifier import classifier
 from app.services.training_data import build_corpus, evaluation_set
 
-# Below this the model is not fit for triage and the build should fail.
+
 MIN_HOLDOUT_ACCURACY = 0.80
 
 
@@ -62,7 +61,6 @@ class TestPrediction:
 
 class TestAccuracy:
     def test_holdout_accuracy_meets_threshold(self) -> None:
-        """The gate that matters: hand-written tickets the model never saw."""
         texts, labels = evaluation_set()
         correct = sum(
             classifier.predict(text).category.value == label

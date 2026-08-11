@@ -1,4 +1,3 @@
-# Deployed environments. No demo data, no debug logging, secure cookies.
 spring:
   flyway:
     locations: classpath:db/migration
@@ -14,7 +13,7 @@ server:
       cookie:
         secure: true
         same-site: strict
-  forward-headers-strategy: framework   # behind an ALB
+  forward-headers-strategy: framework
 
 app:
   storage:

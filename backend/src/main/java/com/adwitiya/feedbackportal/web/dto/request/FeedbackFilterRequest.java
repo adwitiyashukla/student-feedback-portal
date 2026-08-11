@@ -8,10 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 
-/**
- * Query parameters for the feedback list endpoints. Every field is optional;
- * unset fields are simply omitted from the generated SQL.
- */
 @Schema(description = "Optional filters for listing feedback")
 public record FeedbackFilterRequest(
 
@@ -37,18 +33,6 @@ public record FeedbackFilterRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         Instant to
 ) {
-
-    /**
-     * Normalises {@code overdue} so callers never see null.
-     *
-     * <p>This field was declared {@code boolean}. An unticked checkbox submits
-     * nothing at all, so the parameter arrived absent, and Spring cannot bind
-     * null to a primitive - every visit to the queue without an explicit
-     * {@code ?overdue=} failed with a 400 before the controller ever ran,
-     * which contradicted this type's promise that every field is optional.
-     * {@code Boolean} accepts the absent case; normalising here keeps
-     * {@code overdue()} non-null for callers and templates.</p>
-     */
     public FeedbackFilterRequest {
         overdue = overdue != null && overdue;
     }

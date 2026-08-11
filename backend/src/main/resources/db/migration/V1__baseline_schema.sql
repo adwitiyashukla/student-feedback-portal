@@ -1,18 +1,5 @@
--- =====================================================================
--- V1 : Baseline schema for the Student Feedback Portal
---
--- Every structural change is a versioned, checksummed Flyway migration;
--- the schema is never edited in place against a running database.
---
--- Charset is utf8mb4 throughout so the full Unicode range, including
--- four-byte characters, round-trips intact.
--- =====================================================================
-
 SET NAMES utf8mb4;
 
--- ---------------------------------------------------------------------
--- departments
--- ---------------------------------------------------------------------
 CREATE TABLE departments (
     id          BIGINT       NOT NULL AUTO_INCREMENT,
     code        VARCHAR(20)  NOT NULL,
@@ -25,12 +12,6 @@ CREATE TABLE departments (
     CONSTRAINT uk_departments_code UNIQUE (code)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- users  (single authentication table; students and admins extend it)
---
--- A single identity table for every role, so there is one hashing policy,
--- one lockout policy and one audit trail rather than one set per role.
--- ---------------------------------------------------------------------
 CREATE TABLE users (
     id                    BIGINT       NOT NULL AUTO_INCREMENT,
     email                 VARCHAR(160) NOT NULL,
@@ -53,9 +34,6 @@ CREATE TABLE users (
 
 CREATE INDEX ix_users_role ON users (role);
 
--- ---------------------------------------------------------------------
--- students  (joined-table inheritance from users)
--- ---------------------------------------------------------------------
 CREATE TABLE students (
     user_id       BIGINT      NOT NULL,
     roll_number   VARCHAR(30) NOT NULL,
@@ -72,9 +50,6 @@ CREATE TABLE students (
 
 CREATE INDEX ix_students_department ON students (department_id);
 
--- ---------------------------------------------------------------------
--- admins  (joined-table inheritance from users)
--- ---------------------------------------------------------------------
 CREATE TABLE admins (
     user_id       BIGINT      NOT NULL,
     employee_code VARCHAR(30) NOT NULL,
@@ -88,13 +63,6 @@ CREATE TABLE admins (
 
 CREATE INDEX ix_admins_department ON admins (department_id);
 
--- ---------------------------------------------------------------------
--- feedback
---
--- The ticket number is generated server-side and unique-constrained, and
--- the workflow columns are only writable through the service layer - never
--- from a client-supplied field.
--- ---------------------------------------------------------------------
 CREATE TABLE feedback (
     id                  BIGINT       NOT NULL AUTO_INCREMENT,
     ticket_number       VARCHAR(24)  NOT NULL,
@@ -130,7 +98,6 @@ CREATE TABLE feedback (
     CONSTRAINT ck_feedback_rating CHECK (satisfaction_rating IS NULL OR (satisfaction_rating BETWEEN 1 AND 5))
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- Query patterns the dashboards actually use.
 CREATE INDEX ix_feedback_status_created ON feedback (status, created_at);
 CREATE INDEX ix_feedback_submitter_created ON feedback (submitted_by_id, created_at);
 CREATE INDEX ix_feedback_department_status ON feedback (department_id, status);
@@ -138,12 +105,6 @@ CREATE INDEX ix_feedback_assignee_status ON feedback (assigned_to_id, status);
 CREATE INDEX ix_feedback_due_at ON feedback (due_at);
 CREATE FULLTEXT INDEX ft_feedback_text ON feedback (title, description);
 
--- ---------------------------------------------------------------------
--- feedback_comments  (threaded conversation)
---
--- A real thread, so a ticket can carry an ongoing conversation rather
--- than a single reply field.
--- ---------------------------------------------------------------------
 CREATE TABLE feedback_comments (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     feedback_id   BIGINT      NOT NULL,
@@ -158,9 +119,6 @@ CREATE TABLE feedback_comments (
 
 CREATE INDEX ix_comments_feedback_created ON feedback_comments (feedback_id, created_at);
 
--- ---------------------------------------------------------------------
--- feedback_status_history  (immutable audit trail of the workflow)
--- ---------------------------------------------------------------------
 CREATE TABLE feedback_status_history (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     feedback_id   BIGINT      NOT NULL,
@@ -176,9 +134,6 @@ CREATE TABLE feedback_status_history (
 
 CREATE INDEX ix_history_feedback_changed ON feedback_status_history (feedback_id, changed_at);
 
--- ---------------------------------------------------------------------
--- attachments  (local disk in dev, S3 in production)
--- ---------------------------------------------------------------------
 CREATE TABLE attachments (
     id             BIGINT       NOT NULL AUTO_INCREMENT,
     feedback_id    BIGINT       NOT NULL,
@@ -195,9 +150,6 @@ CREATE TABLE attachments (
 
 CREATE INDEX ix_attachments_feedback ON attachments (feedback_id);
 
--- ---------------------------------------------------------------------
--- notifications
--- ---------------------------------------------------------------------
 CREATE TABLE notifications (
     id           BIGINT       NOT NULL AUTO_INCREMENT,
     recipient_id BIGINT       NOT NULL,
@@ -213,9 +165,6 @@ CREATE TABLE notifications (
 
 CREATE INDEX ix_notifications_recipient_read ON notifications (recipient_id, is_read, created_at);
 
--- ---------------------------------------------------------------------
--- refresh_tokens  (only the SHA-256 hash is stored, never the token)
--- ---------------------------------------------------------------------
 CREATE TABLE refresh_tokens (
     id          BIGINT       NOT NULL AUTO_INCREMENT,
     token_hash  VARCHAR(64)  NOT NULL,
@@ -233,9 +182,6 @@ CREATE TABLE refresh_tokens (
 CREATE INDEX ix_refresh_tokens_user ON refresh_tokens (user_id, revoked);
 CREATE INDEX ix_refresh_tokens_expires ON refresh_tokens (expires_at);
 
--- ---------------------------------------------------------------------
--- audit_logs
--- ---------------------------------------------------------------------
 CREATE TABLE audit_logs (
     id          BIGINT       NOT NULL AUTO_INCREMENT,
     actor_id    BIGINT       NULL,

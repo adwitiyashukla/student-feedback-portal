@@ -17,21 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Background maintenance: SLA warnings, auto-close, and housekeeping.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class FeedbackScheduler {
-
     private final FeedbackRepository feedbackRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final AppProperties appProperties;
 
-    /** Warns assignees about tickets that have breached their SLA. Hourly. */
     @Scheduled(cron = "0 5 * * * *")
     @Transactional
     public void warnAboutOverdueFeedback() {
@@ -58,11 +53,6 @@ public class FeedbackScheduler {
         }
     }
 
-    /**
-     * Closes RESOLVED tickets the student never came back to.
-     *
-     * <p>Runs at 02:00 so the write burst lands outside teaching hours.</p>
-     */
     @Scheduled(cron = "0 0 2 * * *")
     @Transactional
     public void autoCloseResolvedFeedback() {
@@ -86,7 +76,6 @@ public class FeedbackScheduler {
         }
     }
 
-    /** Deletes refresh tokens that expired more than a day ago. Daily at 03:00. */
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public void purgeExpiredRefreshTokens() {
@@ -96,7 +85,6 @@ public class FeedbackScheduler {
         }
     }
 
-    /** Releases lockouts whose window has elapsed. Every ten minutes. */
     @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
     @Transactional
     public void releaseExpiredLockouts() {

@@ -8,10 +8,8 @@ import com.adwitiya.feedbackportal.web.dto.response.DepartmentResponse;
 import com.adwitiya.feedbackportal.web.dto.response.UserResponse;
 import org.springframework.stereotype.Component;
 
-/** Entity-to-DTO translation for accounts and departments. */
 @Component
 public class UserMapper {
-
     public UserResponse toResponse(User user) {
         return build(user, null, null, null);
     }

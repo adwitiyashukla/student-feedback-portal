@@ -1,10 +1,3 @@
-/**
- * Admin dashboard charts.
- *
- * Values arrive through data-* attributes on #chart-data rather than an
- * inlined <script> block, so the Content-Security-Policy set in SecurityConfig
- * does not need 'unsafe-inline'.
- */
 (function () {
     "use strict";
 
@@ -13,14 +6,12 @@
         return;
     }
 
-    /** Splits a "a|b|c" attribute into an array, tolerating empty values. */
     function split(value) {
         return (value || "").split("|").filter(function (part) {
             return part.length > 0;
         });
     }
 
-    // ---- Submitted vs resolved, by month ----
     const trendRows = split(source.dataset.trend).map(function (row) {
         const parts = row.split(":");
         return { period: parts[0], submitted: Number(parts[1]), resolved: Number(parts[2]) };
@@ -54,9 +45,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                // Debounce resize handling. The fixed-height .chart-box in
-                // app.css is what actually prevents the runaway-growth loop;
-                // this just stops a burst of resize events from thrashing.
                 resizeDelay: 100,
                 interaction: { mode: "index", intersect: false },
                 scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
@@ -64,7 +52,6 @@
         });
     }
 
-    // ---- Volume by category ----
     const categories = split(source.dataset.categories);
     const counts = split(source.dataset.categoryCounts).map(Number);
 

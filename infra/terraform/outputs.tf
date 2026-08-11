@@ -1,7 +1,3 @@
-# =====================================================================
-#  Outputs
-# =====================================================================
-
 output "application_url" {
   description = "Public URL of the portal."
   value       = "http://${aws_lb.main.dns_name}"

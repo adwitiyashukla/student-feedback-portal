@@ -34,7 +34,7 @@
                                 <label class="form-label" for="departmentId">Department</label>
                                 <select class="form-select" id="departmentId" th:field="*{departmentId}"
                                         th:classappend="${#fields.hasErrors('departmentId')} ? 'is-invalid'">
-                                    <option value="">Choose a department…</option>
+                                    <option value="">Choose a department...</option>
                                     <option th:each="d : ${departments}" th:value="${d.id()}"
                                             th:text="${d.name()}">Department</option>
                                 </select>
@@ -45,7 +45,7 @@
                                 <label class="form-label" for="category">Category</label>
                                 <select class="form-select" id="category" th:field="*{category}"
                                         th:classappend="${#fields.hasErrors('category')} ? 'is-invalid'">
-                                    <option value="">Choose a category…</option>
+                                    <option value="">Choose a category...</option>
                                     <option th:each="c : ${categories}" th:value="${c}"
                                             th:text="${c.displayName}">Category</option>
                                 </select>

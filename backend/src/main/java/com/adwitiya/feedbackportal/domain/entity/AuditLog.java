@@ -15,12 +15,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * Append-only record of a security- or data-significant action.
- *
- * <p>Deliberately holds no foreign keys: the actor's id and email are copied
- * in, so the trail survives the deletion of the account that produced it.</p>
- */
 @Entity
 @Table(name = "audit_logs")
 @Getter
@@ -29,7 +23,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditLog {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,7 +33,6 @@ public class AuditLog {
     @Column(name = "actor_email", length = 160)
     private String actorEmail;
 
-    /** e.g. {@code LOGIN_SUCCESS}, {@code FEEDBACK_STATUS_CHANGED}. */
     @Column(nullable = false, length = 60)
     private String action;
 

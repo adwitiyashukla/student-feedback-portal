@@ -1,7 +1,3 @@
-# =====================================================================
-#  Input variables
-# =====================================================================
-
 variable "aws_region" {
   description = "AWS region to deploy into."
   type        = string
@@ -25,10 +21,6 @@ variable "project_name" {
   default     = "sfp"
 }
 
-# ---------------------------------------------------------------------
-# Networking
-# ---------------------------------------------------------------------
-
 variable "vpc_cidr" {
   description = "CIDR block for the VPC."
   type        = string
@@ -45,10 +37,6 @@ variable "availability_zone_count" {
     error_message = "An Application Load Balancer requires at least two availability zones."
   }
 }
-
-# ---------------------------------------------------------------------
-# Database
-# ---------------------------------------------------------------------
 
 variable "db_instance_class" {
   description = "RDS instance class."
@@ -85,10 +73,6 @@ variable "db_backup_retention_days" {
   type        = number
   default     = 7
 }
-
-# ---------------------------------------------------------------------
-# Container images and sizing
-# ---------------------------------------------------------------------
 
 variable "backend_image" {
   description = "Backend image URI. Defaults to the ECR repository created here."
@@ -137,10 +121,6 @@ variable "analytics_desired_count" {
   type        = number
   default     = 1
 }
-
-# ---------------------------------------------------------------------
-# Application
-# ---------------------------------------------------------------------
 
 variable "app_base_url" {
   description = "Public URL, used to build links in notification email."

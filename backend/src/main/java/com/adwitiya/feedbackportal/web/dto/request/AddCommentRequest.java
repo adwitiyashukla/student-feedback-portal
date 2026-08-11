@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** A message added to a feedback thread. */
 public record AddCommentRequest(
 
         @NotBlank(message = "Comment body is required")

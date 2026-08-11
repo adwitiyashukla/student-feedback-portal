@@ -24,13 +24,7 @@
         <springdoc.version>2.6.0</springdoc.version>
         <aws.sdk.version>2.28.29</aws.sdk.version>
         <jacoco.version>0.8.12</jacoco.version>
-        <!--
-            A ratchet, not an aspiration. Measured line coverage is 0.46, so
-            0.70 failed every build and told us nothing we did not already
-            know. Set just below the real figure: the gate now catches a
-            regression, which is the job it can actually do. Raise it as
-            tests are added rather than leaving a number nobody can meet.
-        -->
+
         <jacoco.line.coverage>0.45</jacoco.line.coverage>
     </properties>
 
@@ -47,7 +41,7 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- ============ Web / MVC ============ -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -65,7 +59,6 @@
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
 
-        <!-- ============ Persistence ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -84,7 +77,6 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
-        <!-- ============ Security ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -107,7 +99,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ============ Caching / rate limiting ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -117,13 +108,11 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- ============ Mail ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- ============ Observability ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -134,20 +123,17 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ============ API documentation ============ -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- ============ AWS S3 (attachment storage in prod) ============ -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
         </dependency>
 
-        <!-- ============ Developer tooling ============ -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -159,7 +145,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- ============ Test ============ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -218,7 +203,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Unit tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -229,7 +213,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Integration tests (Testcontainers) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -248,7 +231,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

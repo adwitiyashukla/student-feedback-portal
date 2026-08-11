@@ -17,13 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/** In-app notifications for the signed-in user. */
 @Tag(name = "Notifications", description = "In-app notification inbox")
 @RestController
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
-
     private final NotificationService notificationService;
 
     @Operation(summary = "List the caller's notifications")

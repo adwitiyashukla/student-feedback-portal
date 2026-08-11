@@ -1,10 +1,6 @@
 package com.adwitiya.feedbackportal.domain.enums;
 
-/**
- * Sentiment classification returned by the Python analytics service.
- */
 public enum SentimentLabel {
-
     POSITIVE,
     NEUTRAL,
     NEGATIVE;

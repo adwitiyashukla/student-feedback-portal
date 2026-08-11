@@ -2,7 +2,6 @@ package com.adwitiya.feedbackportal.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-/** Result of a successful sign-in or token refresh. */
 @Schema(description = "Issued token pair")
 public record AuthResponse(
 

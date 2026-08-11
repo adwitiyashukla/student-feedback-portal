@@ -21,14 +21,12 @@
 
     <div class="row g-4">
 
-        <!-- ---------------- main column ---------------- -->
         <div class="col-lg-8">
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-body-secondary mb-3">Description</h2>
-                    <!-- th:text, never th:utext: the body is user input and
-                         must be escaped on output. -->
+
                     <p class="mb-0" style="white-space: pre-wrap"
                        th:text="${feedback.description()}">Description</p>
                 </div>
@@ -92,10 +90,10 @@
                         <li th:each="h : ${feedback.history()}">
                             <span class="fw-semibold"
                                   th:text="${h.fromStatus() != null}
-                                           ? ${h.fromStatus()} + ' → ' + ${h.toStatus()}
+                                           ? ${h.fromStatus()} + ' -> ' + ${h.toStatus()}
                                            : ${h.toStatus()}">transition</span>
                             <span class="text-body-secondary small"
-                                  th:text="'by ' + ${h.changedByName()} + ' · ' +
+                                  th:text="'by ' + ${h.changedByName()} + ' - ' +
                                            ${#temporals.format(h.changedAt(), 'dd MMM yyyy, HH:mm')}">meta</span>
                             <div class="small text-body-secondary" th:if="${h.note()}" th:text="${h.note()}">note</div>
                         </li>
@@ -108,7 +106,6 @@
 
         </div>
 
-        <!-- ---------------- side column ---------------- -->
         <div class="col-lg-4">
 
             <div class="card border-0 shadow-sm mb-4">
@@ -150,7 +147,6 @@
                 </div>
             </div>
 
-            <!-- Model output, shown to staff as a triage aid, never as a decision. -->
             <div class="card border-0 shadow-sm mb-4"
                  th:if="${canManage and feedback.sentimentLabel() != null}">
                 <div class="card-body">
@@ -183,7 +179,7 @@
                           th:if="${!feedback.allowedTransitions().isEmpty()}">
                         <label class="form-label small text-body-secondary" for="status">Move to</label>
                         <select class="form-select form-select-sm mb-2" id="status" name="status" required>
-                            <!-- Only transitions the state machine permits are offered. -->
+
                             <option th:each="s : ${feedback.allowedTransitions()}" th:value="${s}"
                                     th:text="${#strings.replace(s.name(), '_', ' ')}">S</option>
                         </select>

@@ -28,13 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** Account management. Staff only; there is no public sign-up. */
 @Tag(name = "Users", description = "Student and administrator account management")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
 
     @Operation(summary = "List students")

@@ -1,11 +1,3 @@
-# =====================================================================
-#  Student Feedback Portal - base configuration
-#
-#  Every secret is read from the environment. Nothing sensitive carries a
-#  default, so a missing value fails the startup rather than silently
-#  falling back to a committed credential.
-# =====================================================================
-
 spring:
   application:
     name: student-feedback-portal
@@ -28,9 +20,9 @@ spring:
       leak-detection-threshold: 20000
 
   jpa:
-    open-in-view: false          # fail loudly on lazy loading outside a transaction
+    open-in-view: false
     hibernate:
-      ddl-auto: validate         # Flyway owns the schema; Hibernate only checks it
+      ddl-auto: validate
     properties:
       hibernate:
         jdbc:
@@ -79,7 +71,7 @@ spring:
 
   threads:
     virtual:
-      enabled: true              # Java 21 virtual threads for request handling
+      enabled: true
 
 server:
   port: ${BACKEND_PORT:8080}
@@ -98,9 +90,6 @@ server:
     enabled: true
   shutdown: graceful
 
-# ---------------------------------------------------------------------
-# Application-specific settings (bound to @ConfigurationProperties)
-# ---------------------------------------------------------------------
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   mail-from: ${MAIL_FROM:no-reply@university.edu}
@@ -138,9 +127,6 @@ app:
     login-attempts-per-minute: 10
     api-requests-per-minute: 120
 
-# ---------------------------------------------------------------------
-# Observability
-# ---------------------------------------------------------------------
 management:
   endpoints:
     web:

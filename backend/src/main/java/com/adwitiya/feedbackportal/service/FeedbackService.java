@@ -47,14 +47,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/**
- * The feedback lifecycle: submit, list, read, comment, transition, rate.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FeedbackService {
-
     private static final List<FeedbackStatus> ACTIVE_STATUSES =
             List.of(FeedbackStatus.OPEN, FeedbackStatus.IN_PROGRESS, FeedbackStatus.AWAITING_STUDENT);
 
@@ -74,17 +70,6 @@ public class FeedbackService {
     private final FileStorageService fileStorageService;
     private final FeedbackMapper mapper;
 
-    // ==================================================================
-    //  Submission
-    // ==================================================================
-
-    /**
-     * Records a new piece of feedback on behalf of the signed-in student.
-     *
-     * <p>The ticket number, status, SLA deadline and assignee are all decided
-     * here. Enrichment by the analytics service is scheduled for after the
-     * transaction commits so a slow model cannot lengthen the request.</p>
-     */
     @Transactional
     public FeedbackDetailResponse submit(CreateFeedbackRequest request, AppUserDetails principal) {
         Student student = studentRepository.findByUserId(principal.id())
@@ -121,13 +106,6 @@ public class FeedbackService {
         return mapper.toDetail(saved, List.of(), List.of(), List.of(), true);
     }
 
-    /**
-     * Calls the analytics service once the feedback row is durably committed.
-     *
-     * <p>Registering the callback rather than calling inline keeps the model
-     * off the critical path and guarantees it never sees a row that was later
-     * rolled back.</p>
-     */
     private void enrichAfterCommit(Long feedbackId) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             applyAnalysis(feedbackId);
@@ -141,7 +119,6 @@ public class FeedbackService {
         });
     }
 
-    /** Applies sentiment and category suggestions. Best-effort by design. */
     @Transactional
     public void applyAnalysis(Long feedbackId) {
         feedbackRepository.findById(feedbackId).ifPresent(feedback ->
@@ -153,7 +130,6 @@ public class FeedbackService {
                     feedback.setAnalysisConfidence(result.confidence());
                     feedback.setAnalysedAt(java.time.Instant.now());
 
-                    // Only let the model raise urgency, never lower what a human set.
                     if (result.suggestedPriority().isAtLeast(feedback.getPriority())
                             && result.confidence() >= 0.6) {
                         feedback.setPriority(result.suggestedPriority());
@@ -165,7 +141,6 @@ public class FeedbackService {
                 }));
     }
 
-    /** Routes new feedback to the least-loaded administrator in the department. */
     private void autoAssign(Feedback feedback, Department department) {
         adminRepository.findLeastLoadedAdminIds(department.getId(), PageRequest.of(0, 1)).stream()
                 .findFirst()
@@ -173,17 +148,6 @@ public class FeedbackService {
                 .ifPresent(feedback::setAssignedTo);
     }
 
-    // ==================================================================
-    //  Reads
-    // ==================================================================
-
-    /**
-     * Lists feedback the caller is entitled to see.
-     *
-     * <p>The visibility rule is applied as an extra specification rather than
-     * being left to the caller's filter, so an over-broad request narrows to
-     * the caller's own scope instead of leaking.</p>
-     */
     @Transactional(readOnly = true)
     public PageResponse<FeedbackSummaryResponse> list(FeedbackFilterRequest filter,
                                                       AppUserDetails principal,
@@ -197,7 +161,6 @@ public class FeedbackService {
                 .and(FeedbackSpecifications.createdBetween(filter.from(), filter.to()))
                 .and(FeedbackSpecifications.overdue(filter.overdue()));
 
-        // A super-administrator may additionally narrow by department.
         if (principal.isSuperAdmin() && filter.departmentId() != null) {
             specification = specification.and(FeedbackSpecifications.inDepartment(filter.departmentId()));
         }
@@ -206,11 +169,6 @@ public class FeedbackService {
         return PageResponse.from(page, mapper::toSummary);
     }
 
-    /**
-     * Builds the visibility predicate for a principal:
-     * students see their own tickets, department staff see their department's,
-     * super-administrators see everything.
-     */
     private Specification<Feedback> visibilityScope(AppUserDetails principal) {
         if (principal.isSuperAdmin()) {
             return FeedbackSpecifications.all();
@@ -235,7 +193,7 @@ public class FeedbackService {
                 comments,
                 historyRepository.findByFeedbackIdOrderByChangedAtAsc(feedbackId),
                 attachmentRepository.findByFeedbackId(feedbackId),
-                // The submitter always sees their own name; staff do not, if anonymous.
+
                 !staff);
     }
 
@@ -245,7 +203,7 @@ public class FeedbackService {
             return list(new FeedbackFilterRequest(null, null, null, null, null, null, false, null, null),
                     principal, pageable);
         }
-        // Full-text search is unfiltered at the index level, so re-apply scope in Java.
+
         Page<Feedback> page = feedbackRepository.fullTextSearch(term.trim(), pageable);
         List<FeedbackSummaryResponse> visible = page.getContent().stream()
                 .filter(feedback -> canView(feedback, principal))
@@ -256,15 +214,6 @@ public class FeedbackService {
                 page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast());
     }
 
-    // ==================================================================
-    //  Workflow
-    // ==================================================================
-
-    /**
-     * Moves a ticket to a new state.
-     *
-     * @throws BusinessRuleException if the transition is not permitted by the state machine
-     */
     @Transactional
     public FeedbackDetailResponse changeStatus(Long feedbackId,
                                                UpdateFeedbackStatusRequest request,
@@ -295,7 +244,6 @@ public class FeedbackService {
         return get(feedbackId, principal);
     }
 
-    /** Reassigns a ticket to a named administrator within the same department. */
     @Transactional
     public FeedbackDetailResponse assign(Long feedbackId, Long adminUserId, AppUserDetails principal) {
         Feedback feedback = loadManageable(feedbackId, principal);
@@ -317,7 +265,6 @@ public class FeedbackService {
         return get(feedbackId, principal);
     }
 
-    /** Adds a message to the thread. Students may not write internal notes. */
     @Transactional
     public CommentResponse addComment(Long feedbackId, AddCommentRequest request, AppUserDetails principal) {
         Feedback feedback = loadVisible(feedbackId, principal);
@@ -349,7 +296,6 @@ public class FeedbackService {
         return mapper.toComment(saved);
     }
 
-    /** Records the student's satisfaction rating once a ticket is resolved. */
     @Transactional
     public FeedbackDetailResponse rate(Long feedbackId, RateFeedbackRequest request, AppUserDetails principal) {
         Feedback feedback = loadVisible(feedbackId, principal);
@@ -367,10 +313,6 @@ public class FeedbackService {
 
         return get(feedbackId, principal);
     }
-
-    // ==================================================================
-    //  Attachments
-    // ==================================================================
 
     @Transactional
     public AttachmentResponse attach(Long feedbackId, MultipartFile file, AppUserDetails principal) {
@@ -406,10 +348,6 @@ public class FeedbackService {
         return fileStorageService.retrieve(attachment.getStorageKey());
     }
 
-    // ==================================================================
-    //  Counts used by the dashboards
-    // ==================================================================
-
     @Transactional(readOnly = true)
     public long countActiveForStudent(Long studentUserId) {
         return feedbackRepository.count(FeedbackSpecifications.submittedBy(studentUserId)
@@ -421,16 +359,11 @@ public class FeedbackService {
         return feedbackRepository.countByAssignedToUserIdAndStatusIn(adminUserId, ACTIVE_STATUSES);
     }
 
-    // ==================================================================
-    //  Access helpers
-    // ==================================================================
-
     private Feedback loadVisible(Long feedbackId, AppUserDetails principal) {
         Feedback feedback = feedbackRepository.findWithDetailsById(feedbackId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Feedback", feedbackId));
 
         if (!canView(feedback, principal)) {
-            // 404 rather than 403: an outsider should not learn that the id exists.
             throw ResourceNotFoundException.of("Feedback", feedbackId);
         }
         return feedback;
@@ -476,7 +409,6 @@ public class FeedbackService {
         }
     }
 
-    /** Strips any path component a client may have put in the filename. */
     private String sanitiseFileName(String original) {
         if (original == null || original.isBlank()) {
             return "attachment";
@@ -491,6 +423,6 @@ public class FeedbackService {
         if (value == null) {
             return "";
         }
-        return value.length() <= max ? value : value.substring(0, max - 1) + "…";
+        return value.length() <= max ? value : value.substring(0, max - 1) + "...";
     }
 }

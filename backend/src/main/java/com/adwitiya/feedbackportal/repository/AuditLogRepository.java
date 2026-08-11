@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
-
     @Query("""
             SELECT a FROM AuditLog a
             WHERE (:action IS NULL OR a.action = :action)

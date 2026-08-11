@@ -21,18 +21,10 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.UUID;
 
-/**
- * Stores attachments in S3. Used in every deployed environment.
- *
- * <p>Credentials come from the default provider chain, which on ECS resolves
- * to the task role - no access keys are configured anywhere in this
- * repository. Objects are written with SSE-S3 encryption at rest.</p>
- */
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "app.storage.type", havingValue = "S3")
 public class S3FileStorageService implements FileStorageService {
-
     private final StorageProperties properties;
     private final S3Client s3Client;
 

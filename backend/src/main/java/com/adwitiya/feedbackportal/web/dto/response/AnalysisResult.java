@@ -6,12 +6,6 @@ import com.adwitiya.feedbackportal.domain.enums.SentimentLabel;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Enrichment returned by the Python analytics service.
- *
- * <p>Unknown properties are ignored on purpose so the Python side can add
- * fields without breaking this deserialiser.</p>
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AnalysisResult(
 
@@ -23,7 +17,6 @@ public record AnalysisResult(
         @JsonProperty("keywords") java.util.List<String> keywords,
         @JsonProperty("model_version") String modelVersion
 ) {
-
     public SentimentLabel sentiment() {
         return SentimentLabel.fromLabel(sentimentLabel);
     }

@@ -22,22 +22,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Fixed-window rate limiter backed by Redis.
- *
- * <p>Authentication endpoints get a tighter budget than the rest of the API,
- * because those are the ones worth brute-forcing. The counter is a Redis
- * {@code INCR} against a key that carries the current minute, so windows
- * expire without a sweeper.</p>
- *
- * <p>If Redis is unreachable the filter <em>fails open</em>: an outage of the
- * cache should degrade protection, not take the whole portal offline.</p>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
-
     private static final String KEY_PREFIX = "ratelimit:";
     private static final Duration WINDOW = Duration.ofMinutes(1);
 
@@ -49,7 +37,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-
         AppProperties.RateLimit config = appProperties.getRateLimit();
         String path = request.getRequestURI();
         boolean authEndpoint = isAuthEndpoint(path);
@@ -68,10 +55,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * @return the new counter value, or {@code 0} when Redis is unavailable so
-     *         the caller is never blocked by an infrastructure failure
-     */
     private long incrementAndGet(String key) {
         try {
             Long value = redisTemplate.opsForValue().increment(key);
@@ -104,7 +87,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return KEY_PREFIX + (authEndpoint ? "auth:" : "api:") + clientIp(request) + ":" + minute;
     }
 
-    /** Honours {@code X-Forwarded-For} so the limiter works behind a load balancer. */
     private String clientIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {

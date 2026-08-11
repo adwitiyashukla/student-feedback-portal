@@ -16,10 +16,10 @@ Internet
 │                                                             │
 │  public subnets (2 AZ)          private subnets (2 AZ)      │
 │  ┌──────────────┐               ┌────────────────────────┐  │
-│  │ ALB :80/:443 │──────────────▶│ ECS Fargate · backend  │  │
-│  │ NAT gateway  │               │   ↓                    │  │
-│  └──────────────┘               │ ECS Fargate · analytics│  │
-│                                 │   ↓                    │  │
+│  │ ALB :80/:443 │──────────────▶│ ECS Fargate - backend  │  │
+│  │ NAT gateway  │               │   v                    │  │
+│  └──────────────┘               │ ECS Fargate - analytics│  │
+│                                 │   v                    │  │
 │                                 │ RDS MySQL 8.4          │  │
 │                                 └────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘

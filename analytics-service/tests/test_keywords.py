@@ -1,4 +1,3 @@
-"""Tests for keyword extraction."""
 
 from __future__ import annotations
 

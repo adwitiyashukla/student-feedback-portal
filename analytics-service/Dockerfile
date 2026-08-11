@@ -1,11 +1,3 @@
-# =====================================================================
-#  Feedback analytics service - Python image
-#
-#  The model is trained during the build, so the artifact ships inside the
-#  image and a cold container is ready to serve immediately instead of
-#  spending its first few seconds fitting a classifier.
-# =====================================================================
-
 FROM python:3.12-slim AS base
 
 ENV PYTHONUNBUFFERED=1 \
@@ -15,24 +7,18 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# curl is needed by the healthcheck; nothing else is installed.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl \
  && rm -rf /var/lib/apt/lists/*
 
-# ---------- dependencies ----------
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ---------- application ----------
 COPY app ./app
 COPY train.py .
 
-# Fit and persist the classifier at build time. The build fails if held-out
-# accuracy drops below the acceptance threshold, so a bad model never ships.
 RUN mkdir -p /app/data && python train.py
 
-# ---------- runtime user ----------
 RUN groupadd --system --gid 1001 analytics \
  && useradd --system --uid 1001 --gid analytics --create-home analytics \
  && chown -R analytics:analytics /app

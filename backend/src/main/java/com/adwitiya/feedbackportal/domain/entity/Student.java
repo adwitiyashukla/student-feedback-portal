@@ -17,10 +17,6 @@ import lombok.Setter;
 
 import java.util.Objects;
 
-/**
- * Student-specific profile, sharing its primary key with {@link User} via
- * {@link MapsId} so a student row cannot exist without an identity row.
- */
 @Entity
 @Table(name = "students")
 @Getter
@@ -29,7 +25,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
-
     @Id
     @Column(name = "user_id")
     private Long userId;
@@ -54,7 +49,6 @@ public class Student {
 
     private Integer semester;
 
-    /** Convenience accessor so templates do not have to walk through {@code user}. */
     public String getFullName() {
         return user != null ? user.getFullName() : null;
     }

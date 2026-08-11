@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** Credentials posted to {@code /api/v1/auth/login}. Always over POST, never GET. */
 @Schema(description = "Sign-in credentials")
 public record LoginRequest(
 

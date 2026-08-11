@@ -11,18 +11,9 @@ import org.springframework.web.client.RestClientException;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Client for the Python analytics microservice.
- *
- * <p>The integration is <em>advisory</em>. Sentiment and category suggestions
- * improve triage, but feedback must be accepted whether or not the model is
- * reachable, so every failure path returns {@link Optional#empty()} and the
- * caller carries on.</p>
- */
 @Slf4j
 @Component
 public class AnalyticsClient {
-
     private final RestClient restClient;
     private final AnalyticsProperties properties;
 
@@ -32,13 +23,6 @@ public class AnalyticsClient {
         this.properties = properties;
     }
 
-    /**
-     * Classifies a piece of feedback.
-     *
-     * @param title       the feedback title
-     * @param description the feedback body
-     * @return the model's assessment, or empty if analytics is disabled or unreachable
-     */
     public Optional<AnalysisResult> analyse(String title, String description) {
         if (!properties.isEnabled()) {
             return Optional.empty();
@@ -61,7 +45,6 @@ public class AnalyticsClient {
         }
     }
 
-    /** @return whether the analytics service answers its health probe */
     public boolean isHealthy() {
         if (!properties.isEnabled()) {
             return false;

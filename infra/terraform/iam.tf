@@ -1,13 +1,3 @@
-# =====================================================================
-#  IAM roles for the ECS tasks
-#
-#  Two roles per task, on purpose. The execution role is what the ECS
-#  agent uses to pull an image and read secrets before the container
-#  starts. The task role is what the application itself gets. Keeping
-#  them separate means the running process cannot read the secrets it
-#  was launched with.
-# =====================================================================
-
 data "aws_iam_policy_document" "ecs_assume_role" {
   statement {
     effect  = "Allow"
@@ -44,17 +34,12 @@ resource "aws_iam_role_policy" "task_execution_secrets" {
   policy = data.aws_iam_policy_document.read_secrets.json
 }
 
-# ---------------------------------------------------------------------
-# Task role - the backend's own permissions at runtime
-# ---------------------------------------------------------------------
-
 resource "aws_iam_role" "backend_task" {
   name               = "${local.name}-backend-task"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
 data "aws_iam_policy_document" "attachments_access" {
-  # Object-level operations on the attachment bucket, and nothing else.
   statement {
     effect = "Allow"
     actions = [

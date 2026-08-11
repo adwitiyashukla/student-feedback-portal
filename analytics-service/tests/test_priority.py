@@ -1,4 +1,3 @@
-"""Tests for the priority rule set."""
 
 from __future__ import annotations
 
@@ -21,7 +20,7 @@ class TestCriticalEscalation:
         assert decision.reason
 
     def test_safety_beats_positive_sentiment(self) -> None:
-        # A calmly-worded safety report must still escalate.
+
         decision = infer_priority(
             "Thanks for the good work, but the wiring is dangerous",
             SentimentLabel.POSITIVE, 0.4, Category.INFRASTRUCTURE)
@@ -43,12 +42,6 @@ class TestBlockingCategories:
 
 
 class TestPraiseIsNotEscalated:
-    """Regression: urgency words in positive messages used to force HIGH.
-
-    "The outage was restored very quickly" contains `outage`, which is an
-    urgency term, but the message is praise. Escalating it buried genuine
-    complaints underneath thank-you notes.
-    """
 
     def test_praise_mentioning_an_outage_stays_low(self) -> None:
         decision = infer_priority(

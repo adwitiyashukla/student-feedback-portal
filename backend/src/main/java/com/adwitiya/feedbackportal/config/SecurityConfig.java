@@ -32,23 +32,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Two independent security filter chains for two independent clients.
- *
- * <p>The REST API is stateless and authenticates with a bearer token; CSRF
- * protection is not applicable there because the browser never attaches
- * credentials automatically. The server-rendered UI uses a session cookie, so
- * it keeps CSRF tokens and form login. Expressing this as two ordered
- * {@link SecurityFilterChain} beans is cleaner and safer than trying to make
- * one chain serve both.</p>
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    /** Endpoints reachable without authentication, on either chain. */
     private static final String[] PUBLIC_API_PATHS = {
             "/api/v1/auth/login",
             "/api/v1/auth/refresh",
@@ -70,10 +58,6 @@ public class SecurityConfig {
     private final AppUserDetailsService userDetailsService;
     private final AppProperties appProperties;
 
-    /**
-     * Chain 1 - the JSON API. Stateless, bearer-token authenticated, rate
-     * limited, and it answers with problem+json rather than a redirect.
-     */
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -98,9 +82,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Chain 2 - the Thymeleaf UI. Session cookie, CSRF tokens, form login.
-     */
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -114,7 +95,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login")          // POST only; never GET
+                        .loginProcessingUrl("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
                         .successHandler(new RoleAwareLoginSuccessHandler())
@@ -137,12 +118,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Response headers applied to both chains.
-     *
-     * <p>The CSP is intentionally strict; the UI ships its own CSS and JS and
-     * loads Chart.js from a pinned CDN entry.</p>
-     */
     private void applySecurityHeaders(
             org.springframework.security.config.annotation.web.configurers.HeadersConfigurer<HttpSecurity> headers) {
         headers
@@ -164,15 +139,6 @@ public class SecurityConfig {
                         "form-action 'self'")));
     }
 
-    /**
-     * BCrypt at strength 12, wrapped in a {@link DelegatingPasswordEncoder}.
-     *
-     * <p>New hashes are written with a {@code {bcrypt}} prefix, which is what
-     * makes a future algorithm change a configuration edit rather than a
-     * forced password reset for every account. Hashes stored without a prefix
-     * - the demo dataset, and anything imported from an older system - are
-     * still verified, via {@code setDefaultPasswordEncoderForMatches}.</p>
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         String encodingId = "bcrypt";
@@ -189,7 +155,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
-        // Distinguish "no such user" from "wrong password" internally only.
+
         provider.setHideUserNotFoundExceptions(true);
         return provider;
     }
@@ -214,10 +180,8 @@ public class SecurityConfig {
         return source;
     }
 
-    /** Sends each role to its own landing page after a successful form login. */
     static class RoleAwareLoginSuccessHandler
             extends org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler {
-
         RoleAwareLoginSuccessHandler() {
             setAlwaysUseDefaultTargetUrl(false);
             setTargetUrlParameter("continue");
@@ -234,7 +198,6 @@ public class SecurityConfig {
         }
     }
 
-    /** Convenience matcher used by tests. */
     public static AntPathRequestMatcher apiMatcher(String pattern) {
         return AntPathRequestMatcher.antMatcher(pattern);
     }

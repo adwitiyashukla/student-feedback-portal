@@ -19,12 +19,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Feedback persistence, including the aggregate queries behind the dashboards.
- */
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long>, JpaSpecificationExecutor<Feedback> {
-
     @EntityGraph(attributePaths = {"submittedBy", "submittedBy.user", "assignedTo", "assignedTo.user", "department"})
     Optional<Feedback> findWithDetailsById(Long id);
 
@@ -43,15 +39,10 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, JpaSp
 
     long countByDepartmentIdAndStatusIn(Long departmentId, List<FeedbackStatus> statuses);
 
-    /** Highest ticket sequence issued in a given year, used to mint the next one. */
     @Query(value = "SELECT MAX(CAST(SUBSTRING(f.ticket_number, 9) AS UNSIGNED)) "
             + "FROM feedback f WHERE f.ticket_number LIKE CONCAT('FB-', :year, '-%')",
             nativeQuery = true)
     Optional<Long> findMaxTicketSequenceForYear(@Param("year") String year);
-
-    // ------------------------------------------------------------------
-    //  Dashboard aggregates
-    // ------------------------------------------------------------------
 
     @Query("""
             SELECT f.status AS status, COUNT(f) AS total
@@ -118,7 +109,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, JpaSp
             """)
     Double averageSatisfaction(@Param("departmentId") Long departmentId);
 
-    /** Active tickets past their SLA deadline, newest breach first. */
     @EntityGraph(attributePaths = {"department", "assignedTo", "assignedTo.user"})
     @Query("""
             SELECT f FROM Feedback f
@@ -130,7 +120,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, JpaSp
             """)
     Page<Feedback> findOverdue(@Param("now") Instant now, Pageable pageable);
 
-    /** RESOLVED tickets the student never acknowledged; the scheduler closes these. */
     @Query("""
             SELECT f FROM Feedback f
              WHERE f.status = com.adwitiya.feedbackportal.domain.enums.FeedbackStatus.RESOLVED
@@ -138,12 +127,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, JpaSp
             """)
     List<Feedback> findResolvedBefore(@Param("cutoff") Instant cutoff);
 
-    /**
-     * MySQL full-text search over title and description.
-     *
-     * <p>Uses the {@code ft_feedback_text} index created in V1; a
-     * {@code LIKE '%term%'} scan cannot use an index at all.</p>
-     */
     @Query(value = """
             SELECT * FROM feedback f
              WHERE MATCH(f.title, f.description) AGAINST (:term IN NATURAL LANGUAGE MODE)

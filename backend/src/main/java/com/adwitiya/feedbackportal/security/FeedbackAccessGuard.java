@@ -6,20 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Ownership checks referenced from {@code @PreAuthorize} expressions.
- */
 @Component("feedbackAccess")
 @RequiredArgsConstructor
 public class FeedbackAccessGuard {
-
     private final FeedbackRepository feedbackRepository;
 
-    /**
-     * @param feedbackId the record being requested
-     * @param principal  the caller
-     * @return whether the caller may read this piece of feedback
-     */
     @Transactional(readOnly = true)
     public boolean canView(Long feedbackId, AppUserDetails principal) {
         if (principal == null) {
@@ -33,7 +24,6 @@ public class FeedbackAccessGuard {
                 .orElse(false);
     }
 
-    /** Only staff may change workflow state; students act through their own endpoints. */
     @Transactional(readOnly = true)
     public boolean canManage(Long feedbackId, AppUserDetails principal) {
         if (principal == null || !principal.isStaff()) {
@@ -47,7 +37,6 @@ public class FeedbackAccessGuard {
                 .orElse(false);
     }
 
-    /** The submitting student, and nobody else. */
     @Transactional(readOnly = true)
     public boolean isSubmitter(Long feedbackId, AppUserDetails principal) {
         if (principal == null) {

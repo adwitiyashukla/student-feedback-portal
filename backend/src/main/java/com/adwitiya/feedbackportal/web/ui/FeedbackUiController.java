@@ -20,13 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * The feedback detail page, shared by students and staff.
- */
 @Controller
 @RequiredArgsConstructor
 public class FeedbackUiController {
-
     private final FeedbackService feedbackService;
     private final UserService userService;
     private final NotificationService notificationService;

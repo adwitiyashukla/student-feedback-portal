@@ -21,18 +21,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * One message in the conversation attached to a piece of feedback.
- *
- * <p>An {@code internalNote} is visible only to staff, which lets
- * administrators coordinate without exposing working notes to the student.</p>
- */
-/*
- * @CreatedDate is inert without an AuditingEntityListener. Sibling entities
- * inherit the listener from BaseEntity; this one cannot, because its table has
- * no updated_at column. Registering the listener directly is what actually
- * populates created_at - without it the insert fails on a NOT NULL column.
- */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "feedback_comments")
@@ -42,7 +30,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedbackComment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -13,13 +13,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-/**
- * OpenAPI 3 description served at {@code /v3/api-docs} and rendered by
- * Swagger UI at {@code /swagger-ui.html}.
- */
 @Configuration
 public class OpenApiConfig {
-
     private static final String BEARER_SCHEME = "bearerAuth";
 
     @Bean
@@ -35,9 +30,7 @@ public class OpenApiConfig {
                                 returned access token as `Authorization: Bearer <token>` on every other call.
                                 Access tokens are short-lived; use `/api/v1/auth/refresh` to obtain a new one.
                                 """)
-                        .contact(new Contact()
-                                .name("Adwitiya Shukla")
-                                .email("adwitiyashukla9@gmail.com"))
+                        .contact(new Contact().name("Adwitiya Shukla"))
                         .license(new License().name("MIT").url("https://opensource.org/licenses/MIT")))
                 .servers(List.of(
                         new Server().url("http://localhost:8080").description("Local development"),

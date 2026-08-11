@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Creates a student account. Administrator-only; there is no public sign-up. */
 public record CreateStudentRequest(
 
         @NotBlank @Email @Size(max = 160)

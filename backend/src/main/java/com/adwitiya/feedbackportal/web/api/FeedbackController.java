@@ -42,15 +42,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-/**
- * Feedback endpoints.
- */
 @Tag(name = "Feedback", description = "Submit, track and resolve student feedback")
 @RestController
 @RequestMapping("/api/v1/feedback")
 @RequiredArgsConstructor
 public class FeedbackController {
-
     private final FeedbackService feedbackService;
 
     @Operation(summary = "Submit new feedback",
@@ -149,7 +145,7 @@ public class FeedbackController {
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename(attachment.getFileName()).build().toString())
-                // Attachments are user-supplied: never let the browser sniff or inline-execute them.
+
                 .header("X-Content-Type-Options", "nosniff")
                 .body(content);
     }

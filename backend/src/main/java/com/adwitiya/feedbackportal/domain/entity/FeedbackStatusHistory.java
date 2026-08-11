@@ -21,12 +21,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * Append-only record of one workflow transition.
- *
- * <p>Rows are never updated or deleted, so the full history of who moved a
- * ticket and when survives even if the ticket itself is later reassigned.</p>
- */
 @Entity
 @Table(name = "feedback_status_history")
 @Getter
@@ -35,7 +29,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedbackStatusHistory {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

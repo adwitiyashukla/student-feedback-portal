@@ -1,4 +1,3 @@
-"""End-to-end tests for the HTTP surface."""
 
 from __future__ import annotations
 

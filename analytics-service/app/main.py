@@ -1,10 +1,3 @@
-"""FastAPI application entry point.
-
-Serves the feedback analytics API consumed by the Spring Boot backend. The
-model is loaded once during the lifespan startup hook rather than per request;
-a cold container trains it in-process, which takes a few seconds and then never
-happens again for that image.
-"""
 
 from __future__ import annotations
 
@@ -30,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Load or train the model on startup."""
     settings = get_settings()
     if not settings.api_key:
         logger.warning(
@@ -44,7 +36,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
-    """Build the application. Factored out so tests can construct it directly."""
     settings = get_settings()
 
     app = FastAPI(
@@ -61,7 +52,7 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # The only client is the backend, inside the compose network or the VPC.
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[],
@@ -74,7 +65,6 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-        """Log the detail, return none of it."""
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
         return JSONResponse(
             status_code=500,
