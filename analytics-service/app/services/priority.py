@@ -1,11 +1,9 @@
-
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from app.models.schemas import Category, Priority, SentimentLabel
 from app.services.sentiment import tokenize
-
 
 CRITICAL_TERMS: frozenset[str] = frozenset({
     "unsafe", "dangerous", "danger", "hazard", "hazardous", "injury", "injured",

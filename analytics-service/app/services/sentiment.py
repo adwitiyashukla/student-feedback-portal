@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -6,7 +5,6 @@ import re
 from dataclasses import dataclass
 
 from app.models.schemas import SentimentLabel
-
 
 NEGATIVE_TERMS: dict[str, float] = {
 

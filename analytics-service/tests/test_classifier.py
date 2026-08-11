@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import pytest
@@ -6,7 +5,6 @@ import pytest
 from app.models.schemas import Category
 from app.services.classifier import classifier
 from app.services.training_data import build_corpus, evaluation_set
-
 
 MIN_HOLDOUT_ACCURACY = 0.80
 

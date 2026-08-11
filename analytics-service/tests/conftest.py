@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import os
@@ -7,7 +6,6 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-
 
 _TEMP_MODEL_DIR = Path(tempfile.mkdtemp(prefix="feedback-analytics-tests-"))
 os.environ["ANALYTICS_MODEL_DIR"] = str(_TEMP_MODEL_DIR)
